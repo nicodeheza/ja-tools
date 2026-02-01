@@ -1,7 +1,7 @@
 import {CONFIG} from '../config'
 import {post} from './base.api'
 
-export function useGetTextAnalyzeRes(text: string): Promise<AnalyzeRes> {
+export function getTextAnalyzeRes(text: string): Promise<AnalyzeRes> {
 	return post<AnalyzeRes>(
 		`${CONFIG.API_URL}/analyze`,
 		{text},

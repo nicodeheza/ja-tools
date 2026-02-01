@@ -12,4 +12,7 @@ export class JsonStorage<T> {
 	public saveData(data: T) {
 		localStorage.setItem(this.key, JSON.stringify(data))
 	}
+	public removeData() {
+		localStorage.removeItem(this.key)
+	}
 }

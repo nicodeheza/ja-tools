@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GeneratorIndexRouteImport } from './routes/generator/index'
+import { Route as AnalyzeIndexRouteImport } from './routes/analyze/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const GeneratorIndexRoute = GeneratorIndexRouteImport.update({
   path: '/generator/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyzeIndexRoute = AnalyzeIndexRouteImport.update({
+  id: '/analyze/',
+  path: '/analyze/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analyze/': typeof AnalyzeIndexRoute
   '/generator/': typeof GeneratorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analyze': typeof AnalyzeIndexRoute
   '/generator': typeof GeneratorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analyze/': typeof AnalyzeIndexRoute
   '/generator/': typeof GeneratorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/generator/'
+  fullPaths: '/' | '/analyze/' | '/generator/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/generator'
-  id: '__root__' | '/' | '/generator/'
+  to: '/' | '/analyze' | '/generator'
+  id: '__root__' | '/' | '/analyze/' | '/generator/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyzeIndexRoute: typeof AnalyzeIndexRoute
   GeneratorIndexRoute: typeof GeneratorIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GeneratorIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analyze/': {
+      id: '/analyze/'
+      path: '/analyze'
+      fullPath: '/analyze/'
+      preLoaderRoute: typeof AnalyzeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyzeIndexRoute: AnalyzeIndexRoute,
   GeneratorIndexRoute: GeneratorIndexRoute,
 }
 export const routeTree = rootRouteImport

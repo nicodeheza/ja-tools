@@ -4,7 +4,6 @@ export interface WordToken {
 	original: string
 	isWord: true
 	basicForm: string
-	mecabPos: string
 	furigana?: string
 	dictIds: string[]
 }
