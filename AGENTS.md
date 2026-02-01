@@ -1,16 +1,16 @@
-# AGENTS.md
+# AGENTS.md - Backend
 
-This guide provides coding agents with essential information about the JLP-text-generator codebase, including build commands, code style guidelines, and architectural patterns.
+This guide provides coding agents with essential information about the JLP-text-generator backend codebase.
+
+**Frontend Documentation**: See [frontend/AGENTS.md](./frontend/AGENTS.md) for frontend-specific guidelines.
 
 ## Project Overview
 
 A Japanese text generator with AI-powered content creation, furigana annotation, and dictionary integration for educational purposes. Built with Node.js, Express, TypeScript, and React.
 
-The scope of this project is going to grow, we will add more feature and is going to be a collection of tools for learning Japanese. Also, the project is going to be re named, to something like ja-tools.
+The scope of this project is going to grow, we will add more features and is going to be a collection of tools for learning Japanese. Also, the project is going to be renamed to something like ja-tools.
 
 ## Build/Lint/Test Commands
-
-### Backend Commands
 
 ```bash
 # Development mode (watch mode)
@@ -34,15 +34,6 @@ yarn test --watch
 # Dictionary setup (one-time)
 yarn push:dict
 yarn setup
-```
-
-### Frontend Commands
-
-```bash
-cd frontend
-yarn install
-yarn build
-yarn dev
 ```
 
 ## Architecture & File Organization
