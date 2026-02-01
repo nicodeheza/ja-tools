@@ -20,12 +20,12 @@ export function useGenerateText() {
 
 	useEffect(() => {
 		if (!saveCache) return
-		GeneratedTextStorage.saveEventData(paragraphs, dict, userPrompt)
+		GeneratedTextStorage.saveData({paragraphs, dict, prompt: userPrompt})
 		setSaveCache(false)
 	}, [dict, paragraphs, saveCache, userPrompt])
 
 	const setFromCache = useCallback(() => {
-		const res = GeneratedTextStorage.getEventData()
+		const res = GeneratedTextStorage.getData()
 		if (!res) return false
 		setParagraphs(res.paragraphs)
 		setDict(res.dict)

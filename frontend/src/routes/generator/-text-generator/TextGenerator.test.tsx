@@ -29,8 +29,8 @@ describe('Text Generator', () => {
 	beforeEach(() => {
 		vi.mocked(generatorApi.generateEvent).mockReturnValue(mockEventSource)
 
-		vi.mocked(GeneratedTextStorage.getEventData).mockReturnValue(undefined)
-		vi.mocked(GeneratedTextStorage.saveEventData).mockImplementation(() => {})
+		vi.mocked(GeneratedTextStorage.getData).mockReturnValue(undefined)
+		vi.mocked(GeneratedTextStorage.saveData).mockImplementation(() => {})
 	})
 	afterEach(() => {
 		cleanup()
@@ -82,7 +82,7 @@ describe('Text Generator', () => {
 		}
 		const mockPrompt = 'Write a story about a cat'
 
-		vi.mocked(GeneratedTextStorage.getEventData).mockReturnValue({
+		vi.mocked(GeneratedTextStorage.getData).mockReturnValue({
 			paragraphs: mockParagraphs,
 			dict: mockDict,
 			prompt: mockPrompt
@@ -138,7 +138,7 @@ describe('Text Generator', () => {
 			}
 		}
 
-		vi.mocked(GeneratedTextStorage.getEventData).mockReturnValue({
+		vi.mocked(GeneratedTextStorage.getData).mockReturnValue({
 			paragraphs: mockParagraphs,
 			dict: mockDict,
 			prompt: 'Test prompt'
@@ -204,7 +204,7 @@ describe('Text Generator', () => {
 			}
 		}
 
-		vi.mocked(GeneratedTextStorage.getEventData).mockReturnValue({
+		vi.mocked(GeneratedTextStorage.getData).mockReturnValue({
 			paragraphs: mockParagraphs,
 			dict: mockDict,
 			prompt: 'Test prompt'
@@ -269,7 +269,7 @@ describe('Text Generator', () => {
 			}
 		}
 
-		vi.mocked(GeneratedTextStorage.getEventData).mockReturnValue({
+		vi.mocked(GeneratedTextStorage.getData).mockReturnValue({
 			paragraphs: mockParagraphs,
 			dict: mockDict,
 			prompt: 'Test prompt'
@@ -339,7 +339,7 @@ describe('Text Generator', () => {
 			}
 		}
 
-		vi.mocked(GeneratedTextStorage.getEventData).mockReturnValue({
+		vi.mocked(GeneratedTextStorage.getData).mockReturnValue({
 			paragraphs: mockParagraphs,
 			dict: mockDict,
 			prompt: 'Test prompt'
@@ -471,11 +471,11 @@ describe('Text Generator', () => {
 
 		await waitFor(() => {
 			expect(mockEventSource.close).toHaveBeenCalled()
-			expect(GeneratedTextStorage.saveEventData).toHaveBeenCalledWith(
-				[paragraph],
+			expect(GeneratedTextStorage.saveData).toHaveBeenCalledWith({
+				paragraphs: [paragraph],
 				dict,
-				'Test prompt'
-			)
+				prompt: 'Test prompt'
+			})
 		})
 	})
 

@@ -1,27 +1,25 @@
 import type {FuriganaValues} from '../types/Settings.types'
+import {JsonStorage} from './localStorage'
 
-const savedSettingsKey = '_settings'
 type SavedSettings = Partial<{
 	furigana: FuriganaValues
 }>
 
-function getSettings(): SavedSettings | undefined {
-	const settingsJson = localStorage.getItem(savedSettingsKey)
-	return settingsJson && JSON.parse(settingsJson)
-}
+const SettingsStorage = new JsonStorage<SavedSettings>('_settings')
+
 export function saveSettings(update: SavedSettings) {
-	const settings: SavedSettings = getSettings() || {}
+	const settings: SavedSettings = SettingsStorage.getData() ?? {}
 
 	const newSettings = {
 		...settings,
 		...update
 	}
 
-	localStorage.setItem(savedSettingsKey, JSON.stringify(newSettings))
+	SettingsStorage.saveData(newSettings)
 }
 
 export function getFurigana(): FuriganaValues {
-	const settings = getSettings()
+	const settings = SettingsStorage.getData()
 
 	return settings?.furigana || 'enable'
 }
