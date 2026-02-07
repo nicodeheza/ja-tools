@@ -3,6 +3,7 @@ import {FuriganaSettings} from '../../../../components/settings/FuriganaSettings
 import {AnalyzedText} from '../../../../components/analyzed-text/AnalyzedText.component'
 import {Button} from '../../../../components/Button/Button.component'
 import type {AnalyzeData} from '../analyze.types'
+import styles from './ResultPage.module.css'
 
 interface Props {
 	data: AnalyzeData
@@ -11,14 +12,16 @@ interface Props {
 
 export const ResultPage: FC<Props> = ({data, onClear}) => {
 	return (
-		<div>
-			<FuriganaSettings />
+		<div className={styles.container}>
+			<div className={styles.furiganaSettingsContainer}>
+				<FuriganaSettings />
+			</div>
 			<div>
-				<p>
+				<p className={styles.text}>
 					<AnalyzedText tokens={data.tokens} dict={data.dict} />
 				</p>
 			</div>
-			<Button variant="secondary" onClick={onClear}>
+			<Button variant="primary" onClick={onClear}>
 				Clear
 			</Button>
 		</div>

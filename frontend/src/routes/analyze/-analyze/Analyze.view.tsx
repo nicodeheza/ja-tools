@@ -1,7 +1,8 @@
-import type { FC } from 'react'
-import { useAnalyzedText } from './analyze.service'
-import { InputPage } from './components/InputPage.component'
-import { ResultPage } from './components/ResultPage.component'
+import type {FC} from 'react'
+import {useAnalyzedText} from './analyze.service'
+import {InputPage} from './components/InputPage.component'
+import {ResultPage} from './components/ResultPage.component'
+import styles from './Analyze.module.css'
 
 export const Analyze: FC = () => {
 	const {status, data, error, analyzeText, removeData} = useAnalyzedText()
@@ -11,7 +12,7 @@ export const Analyze: FC = () => {
 	}
 
 	if (status === 'error' && error) {
-		return <p>{error.message}</p>
+		return <p className={styles.error}>{error.message}</p>
 	}
 
 	if (status === 'success' && data) {

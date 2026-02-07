@@ -1,5 +1,6 @@
 import {useState, type FC, type FormEvent} from 'react'
 import {Button} from '../../../../components/Button/Button.component'
+import styles from './InputPage.module.css'
 
 interface Props {
 	onSubmit: (text: string) => void
@@ -14,7 +15,7 @@ export const InputPage: FC<Props> = ({onSubmit}) => {
 	}
 
 	return (
-		<form onSubmit={handleSubmit}>
+		<form onSubmit={handleSubmit} className={styles.form}>
 			<textarea
 				name="text"
 				id="text"

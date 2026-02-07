@@ -39,7 +39,7 @@ export const TextGenerator: FC = () => {
 	return (
 		<div>
 			<FuriganaSettings />
-			<div>
+			<div className={styles.result}>
 				{paragraphs.map((p, i) => (
 					<div className={styles.paragraph} key={i}>
 						<p className={styles.text}>
