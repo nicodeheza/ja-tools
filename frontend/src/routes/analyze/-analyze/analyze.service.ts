@@ -2,10 +2,12 @@ import {create} from 'zustand/react'
 import {getTextAnalyzeRes} from '../../../api/analyze.api'
 import {analyzeStorage} from './analyze.storage'
 import type {AnalyzeData} from './analyze.types'
+import {useEffect} from 'react'
 
 interface BaseAnalyze {
 	analyzeText: (text: string) => Promise<void>
 	removeData: () => void
+	updateInitialState: () => void
 }
 
 interface InactiveAnalyze {
@@ -39,7 +41,9 @@ const useAnalyzedTextStore = create<AnaliceTextStore>((set) => ({
 		set({status: 'loading', data: undefined, error: undefined})
 		try {
 			const res = await getTextAnalyzeRes(text)
-			set({status: 'success', data: {...res, text}, error: undefined})
+			const data = {...res, text}
+			analyzeStorage.saveData(data)
+			set({status: 'success', data, error: undefined})
 		} catch (error) {
 			set({status: 'error', data: undefined, error: error as Error})
 		}
@@ -47,6 +51,9 @@ const useAnalyzedTextStore = create<AnaliceTextStore>((set) => ({
 	removeData: () => {
 		analyzeStorage.removeData()
 		set({status: 'inactive', data: undefined, error: undefined})
+	},
+	updateInitialState: () => {
+		set(getInitialState())
 	}
 }))
 
@@ -66,6 +73,20 @@ function getInitialState(): AnalyzeState {
 	}
 }
 
-export function useAnalyzedText() {
-	return useAnalyzedTextStore((state) => state)
+type AnalyzeTextService = Omit<BaseAnalyze, 'updateInitialState'> & AnalyzeState
+export function useAnalyzedText(): AnalyzeTextService {
+	const store = useAnalyzedTextStore((s) => s)
+
+	useEffect(() => {
+		if (store.status !== 'inactive') return
+		store.updateInitialState()
+		// only need this in first render
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	return store
+}
+
+export function clearAnalyzedTextStore() {
+	useAnalyzedTextStore.getState().removeData()
 }

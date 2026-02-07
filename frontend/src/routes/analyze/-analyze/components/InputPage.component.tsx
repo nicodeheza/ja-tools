@@ -1,11 +1,29 @@
-import type {FC} from 'react'
+import {useState, type FC, type FormEvent} from 'react'
 import {Button} from '../../../../components/Button/Button.component'
 
-export const InputPage: FC = () => {
+interface Props {
+	onSubmit: (text: string) => void
+}
+
+export const InputPage: FC<Props> = ({onSubmit}) => {
+	const [text, setText] = useState('')
+
+	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		onSubmit(text)
+	}
+
 	return (
-		<form>
-			<textarea name="text" id="text" />
-			<Button>Analice</Button>
+		<form onSubmit={handleSubmit}>
+			<textarea
+				name="text"
+				id="text"
+				value={text}
+				onChange={(e) => setText(e.target.value)}
+				placeholder="Insert your Japanese text"
+				required
+			/>
+			<Button type="submit">Analice</Button>
 		</form>
 	)
 }
