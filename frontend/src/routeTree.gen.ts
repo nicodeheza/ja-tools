@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PdfOcrIndexRouteImport } from './routes/pdf-ocr/index'
 import { Route as GeneratorIndexRouteImport } from './routes/generator/index'
 import { Route as AnalyzeIndexRouteImport } from './routes/analyze/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PdfOcrIndexRoute = PdfOcrIndexRouteImport.update({
+  id: '/pdf-ocr/',
+  path: '/pdf-ocr/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GeneratorIndexRoute = GeneratorIndexRouteImport.update({
@@ -33,30 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analyze/': typeof AnalyzeIndexRoute
   '/generator/': typeof GeneratorIndexRoute
+  '/pdf-ocr/': typeof PdfOcrIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeIndexRoute
   '/generator': typeof GeneratorIndexRoute
+  '/pdf-ocr': typeof PdfOcrIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analyze/': typeof AnalyzeIndexRoute
   '/generator/': typeof GeneratorIndexRoute
+  '/pdf-ocr/': typeof PdfOcrIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analyze/' | '/generator/'
+  fullPaths: '/' | '/analyze/' | '/generator/' | '/pdf-ocr/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analyze' | '/generator'
-  id: '__root__' | '/' | '/analyze/' | '/generator/'
+  to: '/' | '/analyze' | '/generator' | '/pdf-ocr'
+  id: '__root__' | '/' | '/analyze/' | '/generator/' | '/pdf-ocr/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyzeIndexRoute: typeof AnalyzeIndexRoute
   GeneratorIndexRoute: typeof GeneratorIndexRoute
+  PdfOcrIndexRoute: typeof PdfOcrIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pdf-ocr/': {
+      id: '/pdf-ocr/'
+      path: '/pdf-ocr'
+      fullPath: '/pdf-ocr/'
+      preLoaderRoute: typeof PdfOcrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generator/': {
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyzeIndexRoute: AnalyzeIndexRoute,
   GeneratorIndexRoute: GeneratorIndexRoute,
+  PdfOcrIndexRoute: PdfOcrIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
