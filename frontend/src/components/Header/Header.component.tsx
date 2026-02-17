@@ -8,6 +8,7 @@ export const Header: FC = () => {
 			<nav className={styles.nav}>
 				<NavLink to={'/generator'}>Generate Text</NavLink>
 				<NavLink to={'/analyze'}>Analyze Text</NavLink>
+				<NavLink to={'/pdf-ocr'}>PDF OCR</NavLink>
 			</nav>
 		</header>
 	)

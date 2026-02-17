@@ -3,6 +3,7 @@ import {Button} from '../Button/Button.component'
 import styles from './FileInput.module.css'
 
 interface Props {
+	file?: File
 	onFileChange: (file: File) => void
 	accept: string
 	children: ReactNode
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export const FileInput: FC<Props> = ({
+	file,
 	onFileChange,
 	accept,
 	children,
@@ -38,7 +40,7 @@ export const FileInput: FC<Props> = ({
 				className={styles.fileInput}
 			/>
 			<Button onClick={handleButtonClick} disabled={disabled}>
-				{children}
+				{file ? file.name : children}
 			</Button>
 		</>
 	)
