@@ -1,16 +1,50 @@
-import {useState, useEffect, type RefObject, useRef} from 'react'
-import type {PDFDocumentProxy} from 'pdfjs-dist'
-import type {AsyncData} from '../../../../types/asyncData.types'
+import {useEffect, useRef, useState, type RefObject} from 'react'
+import {pdf} from '../infrastructure/pdf.infrastructure'
+import type {AsyncData, IdleAsyncData} from '../../../../types/asyncData.types'
 import {
 	getErrorState,
+	getIdleState,
 	getLoadingState,
 	getSuccessState
 } from '../../../../helpers/async.helpers'
 
-// TODO -  test
+// TODO - test
+interface PdfData {
+	totalPages: number
+	name: string
+}
+
+type UseLoadPdfReturn = {
+	loadPdf: (file: File) => void
+} & IdleAsyncData<PdfData>
+
+export function useLoadPdf(): UseLoadPdfReturn {
+	const [asyncData, setAsyncData] = useState<IdleAsyncData<PdfData>>(getIdleState())
+
+	const loadPdf = (file: File) => {
+		setAsyncData(getLoadingState())
+
+		pdf
+			.loadPdf(file)
+			.then(() => {
+				setAsyncData(
+					getSuccessState<PdfData>({
+						totalPages: pdf.totalPages,
+						name: pdf.name
+					})
+				)
+			})
+			.catch((err: unknown) => {
+				const error =
+					err instanceof Error ? err : new Error('Failed to load PDF document')
+				setAsyncData(getErrorState(error))
+			})
+	}
+
+	return {loadPdf, ...asyncData}
+}
 
 interface UseLoadPageParams {
-	document: PDFDocumentProxy | undefined
 	pageNumber: number
 	canvasRef: RefObject<HTMLCanvasElement | null>
 }
@@ -18,7 +52,6 @@ interface UseLoadPageParams {
 type UseLoadPageReturn = Omit<AsyncData<undefined>, 'data'>
 
 export function useLoadPage({
-	document,
 	pageNumber,
 	canvasRef
 }: UseLoadPageParams): UseLoadPageReturn {
@@ -26,35 +59,16 @@ export function useLoadPage({
 	const rendering = useRef<Set<number>>(new Set())
 
 	useEffect(() => {
-		if (!document || !canvasRef.current) {
+		if (!canvasRef.current) {
 			return
 		}
 		setPageReturn(getLoadingState())
 
 		const canvas = canvasRef.current
-		const totalPages = document.numPages
-		const validPage = Math.max(1, Math.min(pageNumber, totalPages))
 
 		const renderPage = async () => {
 			try {
-				const page = await document.getPage(validPage)
-				const viewport = page.getViewport({scale: 2.0})
-
-				canvas.width = viewport.width
-				canvas.height = viewport.height
-
-				const context = canvas.getContext('2d')
-				if (!context) {
-					throw new Error('Failed to get canvas context')
-				}
-
-				const renderTask = page.render({
-					canvasContext: context,
-					canvas,
-					viewport: viewport
-				})
-				await renderTask.promise
-
+				await pdf.renderPage(canvas, pageNumber)
 				setPageReturn(getSuccessState<undefined>(undefined))
 			} catch (err) {
 				if (err instanceof Error && err.name === 'RenderingCancelledException') return
@@ -67,7 +81,7 @@ export function useLoadPage({
 		if (rendering.current.has(pageNumber)) return
 		rendering.current.add(pageNumber)
 		renderPage().finally(() => rendering.current.delete(pageNumber))
-	}, [document, pageNumber, canvasRef])
+	}, [pageNumber, canvasRef])
 
 	return pageReturn
 }

@@ -1,10 +1,8 @@
-import type {PDFDocumentProxy} from 'pdfjs-dist/types/src/display/api'
 import {forwardRef, useImperativeHandle, useRef, type Ref} from 'react'
-import {useLoadPage} from '../../hooks/useLoadPage.hook'
+import {useLoadPage} from '../../services/pdf.service'
 
 interface Props {
 	pageNumber: number
-	document: PDFDocumentProxy
 }
 
 export interface PageApi {
@@ -12,11 +10,11 @@ export interface PageApi {
 }
 
 export const PdfPage = forwardRef(function PdfPage(
-	{pageNumber, document}: Props,
+	{pageNumber}: Props,
 	ref: Ref<PageApi>
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
-	const {status, error} = useLoadPage({document, pageNumber, canvasRef})
+	const {status, error} = useLoadPage({pageNumber, canvasRef})
 
 	useImperativeHandle(ref, () => ({
 		getPageImage: () => canvasRef.current?.toDataURL('image/png')

@@ -1,7 +1,7 @@
 import {useRef, useState, useCallback, type FC} from 'react'
 import {PdfBar} from './components/pdf-bar/PdfBar.component'
 import {PdfPage, type PageApi} from './components/pdf-page/PdfPage.component'
-import {useLoadPdf} from './hooks/useLoadPdf.hook'
+import {useLoadPdf} from './services/pdf.service'
 
 //TODO - persist file on navigation
 export const PdfOcr: FC = () => {
@@ -49,13 +49,7 @@ export const PdfOcr: FC = () => {
 					case 'error':
 						return <p>{loadPdfError.message}</p>
 					case 'success':
-						return (
-							<PdfPage
-								document={loadPdfData.document}
-								pageNumber={currentPage}
-								ref={pageRef}
-							/>
-						)
+						return <PdfPage pageNumber={currentPage} ref={pageRef} />
 				}
 			})()}
 		</div>
