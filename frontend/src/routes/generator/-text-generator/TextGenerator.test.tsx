@@ -57,7 +57,6 @@ describe('Text Generator', () => {
 						furigana: 'ねこ',
 						isWord: true,
 						basicForm: '猫',
-						mecabPos: '名詞',
 						dictIds: ['word1']
 					},
 					{original: 'が', isWord: false},
@@ -66,7 +65,6 @@ describe('Text Generator', () => {
 						furigana: 'すき',
 						isWord: true,
 						basicForm: '好き',
-						mecabPos: '形容動詞',
 						dictIds: ['word2']
 					},
 					{original: 'です', isWord: false}
@@ -110,7 +108,6 @@ describe('Text Generator', () => {
 						furigana: '東京[とうきょう]',
 						isWord: true,
 						basicForm: '東京',
-						mecabPos: '名詞',
 						dictIds: ['word1']
 					},
 					{original: 'に', isWord: false},
@@ -119,7 +116,6 @@ describe('Text Generator', () => {
 						furigana: '行[い]きました',
 						isWord: true,
 						basicForm: '行く',
-						mecabPos: '動詞',
 						dictIds: ['word2']
 					}
 				]
@@ -180,7 +176,6 @@ describe('Text Generator', () => {
 						furigana: '猫[ねこ]',
 						isWord: true,
 						basicForm: '猫',
-						mecabPos: '名詞',
 						dictIds: ['word1']
 					},
 					{original: 'が', isWord: false},
@@ -189,7 +184,6 @@ describe('Text Generator', () => {
 						furigana: '好[す]き',
 						isWord: true,
 						basicForm: '好き',
-						mecabPos: '形容動詞',
 						dictIds: ['word2']
 					},
 					{original: 'です', isWord: false}
@@ -245,7 +239,6 @@ describe('Text Generator', () => {
 						furigana: '猫[ねこ]',
 						isWord: true,
 						basicForm: '猫',
-						mecabPos: '名詞',
 						dictIds: ['word1']
 					},
 					{original: 'が', isWord: false},
@@ -254,7 +247,6 @@ describe('Text Generator', () => {
 						furigana: '好[す]き',
 						isWord: true,
 						basicForm: '好き',
-						mecabPos: '形容動詞',
 						dictIds: ['word2']
 					},
 					{original: 'です', isWord: false}
@@ -310,7 +302,6 @@ describe('Text Generator', () => {
 						furigana: '猫[ねこ]',
 						isWord: true,
 						basicForm: '猫',
-						mecabPos: '名詞',
 						dictIds: ['word1']
 					},
 					{original: 'が', isWord: false},
@@ -319,7 +310,6 @@ describe('Text Generator', () => {
 						furigana: '好[す]き',
 						isWord: true,
 						basicForm: '好き',
-						mecabPos: '形容動詞',
 						dictIds: ['word2']
 					},
 					{original: 'です', isWord: false}
@@ -418,7 +408,6 @@ describe('Text Generator', () => {
 					furigana: 'ねこ',
 					isWord: true,
 					basicForm: '猫',
-					mecabPos: '名詞',
 					dictIds: ['word1']
 				},
 				{original: 'が', isWord: false},
@@ -427,7 +416,6 @@ describe('Text Generator', () => {
 					furigana: 'すき',
 					isWord: true,
 					basicForm: '好き',
-					mecabPos: '形容動詞',
 					dictIds: ['word2']
 				},
 				{original: 'です', isWord: false}
