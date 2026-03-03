@@ -103,21 +103,30 @@ describe('PdfOcr', () => {
 		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(1)
 	})
 
-	// NOTE: known bug — clearing the controlled number input doesn't reset the React state,
-	// so typing "2" after clear results in "12" instead. Use it.fails until the bug is fixed.
-	it('should be possible to go to a page using the page input', async () => {
-		const user = userEvent.setup()
-		render(<PdfOcr />)
+	describe('page input', () => {
+		afterEach(() => {
+			vi.useRealTimers()
+		})
 
-		await uploadPdf(user)
+		it('should be possible to go to a page using the page input', async () => {
+			render(<PdfOcr />)
 
-		const pageInput = screen.getByRole('spinbutton', {name: 'Page'})
-		expect(pageInput).toHaveValue(1)
-		await user.clear(pageInput)
-		await user.type(pageInput, '2')
+			await uploadPdf(userEvent.setup())
 
-		const canvas = document.querySelector('canvas')
-		expect(mockPdf.renderPage).toHaveBeenCalledWith(canvas, 2)
-		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+			vi.useFakeTimers({shouldAdvanceTime: true})
+			const user = userEvent.setup({advanceTimers: vi.advanceTimersByTime})
+
+			const pageInput = screen.getByRole('spinbutton', {name: 'Page'})
+			expect(pageInput).toHaveValue(1)
+			await user.clear(pageInput)
+			await user.type(pageInput, '2')
+			vi.advanceTimersByTime(500)
+
+			const canvas = document.querySelector('canvas')
+			await waitFor(() => {
+				expect(mockPdf.renderPage).toHaveBeenCalledWith(canvas, 2)
+			})
+			expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+		})
 	})
 })

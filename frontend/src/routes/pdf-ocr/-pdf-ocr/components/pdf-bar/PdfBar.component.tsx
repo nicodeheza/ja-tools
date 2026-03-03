@@ -1,4 +1,4 @@
-import {type ChangeEvent, type FC} from 'react'
+import {useRef, useState, type ChangeEvent, type FC} from 'react'
 import {FileInput} from '../../../../../components/FileInput/FileInput.component'
 import {Button} from '../../../../../components/Button/Button.component'
 import styles from './PdfBar.module.css'
@@ -40,20 +40,29 @@ export const PdfBar: FC<Props> = ({
 type PagesProps = Pick<Props, 'currentPage' | 'totalPages' | 'onPageChange'>
 
 const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
+	const [inputValue, setInputValue] = useState(String(currentPage))
+	const timeout = useRef<NodeJS.Timeout>(null)
+
 	const onPrev = () => {
 		const prevPage = Math.max(currentPage - 1, 1)
 		onPageChange(prevPage)
+		setInputValue(String(prevPage))
 	}
 
 	const onNext = () => {
 		if (!totalPages) return
 		const nextPaga = Math.min(currentPage + 1, totalPages)
 		onPageChange(nextPaga)
+		setInputValue(String(nextPaga))
 	}
 
 	const onPageInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-		if (!e.target.value) return
-		onPageChange(Number(e.target.value))
+		if (timeout.current) clearTimeout(timeout.current)
+		setInputValue(e.target.value)
+
+		timeout.current = setTimeout(() => {
+			if (e.target.value) onPageChange(Number(e.target.value))
+		}, DEBOUNCE_TIME)
 	}
 
 	return (
@@ -65,7 +74,7 @@ const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
 				aria-label="Page"
 				disabled={!totalPages}
 				type="number"
-				value={currentPage}
+				value={inputValue}
 				onChange={onPageInputChange}
 			/>
 			{'/'}
@@ -76,3 +85,5 @@ const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
 		</div>
 	)
 }
+
+const DEBOUNCE_TIME = 500
