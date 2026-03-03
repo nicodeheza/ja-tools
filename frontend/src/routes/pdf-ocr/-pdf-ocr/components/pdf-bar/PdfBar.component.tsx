@@ -62,13 +62,14 @@ const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
 				{'<'}
 			</button>
 			<input
+				aria-label="Page"
 				disabled={!totalPages}
 				type="number"
 				value={currentPage}
 				onChange={onPageInputChange}
 			/>
 			{'/'}
-			{totalPages ? totalPages : 0}
+			<output aria-label="Total pages">{totalPages ?? 0}</output>
 			<button disabled={!totalPages} onClick={onNext}>
 				{'>'}
 			</button>
