@@ -4,3 +4,4 @@ jmDict
 dist
 .vscode
 yarn-error.log
+frontend/src/assets/*
