@@ -1,8 +1,11 @@
 import {forwardRef, useImperativeHandle, useRef, type Ref} from 'react'
 import {useLoadPage} from '../../services/pdf.service'
+import type {OcrResult} from '../../pdfOcr.types'
+import styles from './PdfPage.module.css'
 
 interface Props {
 	pageNumber: number
+	ocrResults?: OcrResult[]
 }
 
 export interface PageApi {
@@ -10,7 +13,7 @@ export interface PageApi {
 }
 
 export const PdfPage = forwardRef(function PdfPage(
-	{pageNumber}: Props,
+	{pageNumber, ocrResults}: Props,
 	ref: Ref<PageApi>
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -21,10 +24,28 @@ export const PdfPage = forwardRef(function PdfPage(
 	}))
 
 	return (
-		<div>
+		<div className={styles.container}>
 			{status === 'loading' && <p>Loading page...</p>}
 			{status === 'error' && <p>{error?.message}</p>}
 			<canvas ref={canvasRef} />
+			{ocrResults && ocrResults.length > 0 && (
+				<div className={styles.overlay}>
+					{ocrResults.map((result, i) => (
+						<span
+							key={i}
+							className={styles.ocrWord}
+							style={{
+								left: result.box.x,
+								top: result.box.y,
+								width: result.box.w,
+								height: result.box.h
+							}}
+						>
+							{result.text}
+						</span>
+					))}
+				</div>
+			)}
 		</div>
 	)
 })

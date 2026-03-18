@@ -2,6 +2,8 @@ import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest'
 import {render, screen, cleanup, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {PdfOcr} from './PdfOcr.page'
+import * as ocrInfrastructure from './infrastructure/ocr.infrastructure'
+import type {OcrResult} from './pdfOcr.types'
 
 // vi.hoisted ensures mockPdf is initialized before the hoisted vi.mock call
 const mockPdf = vi.hoisted(() => ({
@@ -14,6 +16,8 @@ const mockPdf = vi.hoisted(() => ({
 vi.mock('./infrastructure/pdf.infrastructure.js', () => ({
 	pdf: mockPdf
 }))
+
+vi.mock('./infrastructure/ocr.infrastructure')
 
 const testFile = new File(['pdf content'], 'test.pdf', {type: 'application/pdf'})
 
@@ -33,6 +37,7 @@ describe('PdfOcr', () => {
 		mockPdf.renderPage.mockResolvedValue(undefined)
 		// jsdom does not implement canvas — stub getContext so useLoadPage can run
 		HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({})
+		vi.mocked(ocrInfrastructure.ocrInit).mockResolvedValue(undefined)
 	})
 
 	afterEach(() => {
@@ -127,6 +132,67 @@ describe('PdfOcr', () => {
 				expect(mockPdf.renderPage).toHaveBeenCalledWith(canvas, 2)
 			})
 			expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+		})
+	})
+
+	describe('ocr', () => {
+		const mockOcrResults: OcrResult[] = [
+			{text: '認識', box: {x: 10, y: 20, w: 100, h: 30}},
+			{text: 'テスト', box: {x: 10, y: 60, w: 120, h: 30}}
+		]
+
+		beforeEach(() => {
+			vi.mocked(ocrInfrastructure.ocrInit).mockResolvedValue(undefined)
+			vi.mocked(ocrInfrastructure.detect).mockResolvedValue(mockOcrResults)
+			HTMLCanvasElement.prototype.toDataURL = vi
+				.fn()
+				.mockReturnValue('data:image/png;base64,abc')
+		})
+
+		it('should display OCR results when OCR button is clicked', async () => {
+			const user = userEvent.setup()
+			render(<PdfOcr />)
+
+			await uploadPdf(user)
+
+			await waitFor(() => {
+				expect(screen.getByRole('button', {name: 'OCR Document'})).not.toBeDisabled()
+			})
+
+			await user.click(screen.getByRole('button', {name: 'OCR Document'}))
+
+			await waitFor(() => {
+				expect(screen.getByText('認識')).toBeInTheDocument()
+				expect(screen.getByText('テスト')).toBeInTheDocument()
+			})
+		})
+
+		it('should replace OCR results when OCR is run again', async () => {
+			const user = userEvent.setup()
+			render(<PdfOcr />)
+
+			await uploadPdf(user)
+
+			await waitFor(() => {
+				expect(screen.getByRole('button', {name: 'OCR Document'})).not.toBeDisabled()
+			})
+
+			await user.click(screen.getByRole('button', {name: 'OCR Document'}))
+
+			await waitFor(() => {
+				expect(screen.getByText('認識')).toBeInTheDocument()
+			})
+
+			const newResults: OcrResult[] = [{text: '新しい', box: {x: 0, y: 0, w: 80, h: 30}}]
+			vi.mocked(ocrInfrastructure.detect).mockResolvedValue(newResults)
+
+			await user.click(screen.getByRole('button', {name: 'OCR Document'}))
+
+			await waitFor(() => {
+				expect(screen.getByText('新しい')).toBeInTheDocument()
+				expect(screen.queryByText('認識')).not.toBeInTheDocument()
+				expect(screen.queryByText('テスト')).not.toBeInTheDocument()
+			})
 		})
 	})
 })

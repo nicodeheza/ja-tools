@@ -1,0 +1,24 @@
+.container {
+	position: relative;
+	display: inline-block;
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	/* Canvas renders at 2x scale; scale overlay down to match display size */
+	transform: scale(0.5);
+	transform-origin: top left;
+	pointer-events: none;
+}
+
+.ocrWord {
+	position: absolute;
+	pointer-events: auto;
+	color: transparent;
+	cursor: default;
+	white-space: nowrap;
+}
