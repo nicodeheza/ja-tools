@@ -1,5 +1,11 @@
 import Ocr, {type Line} from '@gutenye/ocr-browser'
+import * as ort from 'onnxruntime-web'
 import type {OcrResult} from '../pdfOcr.types'
+
+// Disable multi-threading to avoid SharedArrayBuffer / COOP+COEP requirements.
+// ORT resolves WASM files relative to the JS chunk via import.meta.url,
+// which works correctly when onnxruntime-web is excluded from Vite pre-bundling.
+ort.env.wasm.numThreads = 1
 
 let OCR: Ocr
 
