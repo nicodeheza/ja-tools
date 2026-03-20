@@ -29,23 +29,24 @@ export function useLoadOcr(): UseLoadOcrReturn {
 	return asyncData
 }
 
+type OcrPages = Record<number, OcrResult[]>
 type UseOcrDetectReturn = {
-	detect: (dataUrl: string) => void
-} & IdleAsyncData<OcrResult[]>
+	detect: (dataUrl: string, page: number) => void
+} & IdleAsyncData<OcrPages>
 
 export function useOcrDetect(): UseOcrDetectReturn {
-	const [asyncData, setAsyncData] = useState<IdleAsyncData<OcrResult[]>>({
+	const [asyncData, setAsyncData] = useState<IdleAsyncData<OcrPages>>({
 		status: 'idle',
 		data: undefined,
 		error: undefined
 	})
 
-	const detect = (dataUrl: string) => {
+	const detect = (dataUrl: string, page: number) => {
 		setAsyncData(getLoadingState())
 
 		detectInfra(dataUrl)
 			.then((results) => {
-				setAsyncData(getSuccessState(results))
+				setAsyncData(getSuccessState({...asyncData.data, [page]: results}))
 			})
 			.catch((err: unknown) => {
 				const error = err instanceof Error ? err : new Error('OCR detection failed')

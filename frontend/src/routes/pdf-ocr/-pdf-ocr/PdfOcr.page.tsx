@@ -32,7 +32,7 @@ export const PdfOcr: FC = () => {
 	const handleOcr = () => {
 		const image = pageRef.current?.getPageImage()
 		if (!image) return
-		detect(image)
+		detect(image, currentPage)
 	}
 
 	if (ocrLoadStatus === 'error') return <p>{ocrLoadingError?.message}</p>
@@ -62,7 +62,7 @@ export const PdfOcr: FC = () => {
 							<PdfPage
 								pageNumber={currentPage}
 								ref={pageRef}
-								ocrResults={ocrStatus === 'success' ? ocrData : undefined}
+								ocrResults={ocrStatus === 'success' ? ocrData[currentPage] : undefined}
 							/>
 						)
 				}
