@@ -29,22 +29,35 @@ export const PdfPage = forwardRef(function PdfPage(
 			{status === 'error' && <p>{error?.message}</p>}
 			<canvas ref={canvasRef} />
 			{ocrResults && ocrResults.length > 0 && (
-				<div className={styles.overlay}>
+				<svg
+					className={styles.overlay}
+					width={canvasRef.current?.width}
+					height={canvasRef.current?.height}
+					xmlns="http://www.w3.org/2000/svg"
+				>
 					{ocrResults.map((result, i) => (
-						<span
-							key={i}
-							className={styles.ocrWord}
-							style={{
-								left: result.box.x,
-								top: result.box.y,
-								width: result.box.w,
-								height: result.box.h
-							}}
-						>
-							{result.text}
-						</span>
+						<g key={i}>
+							<rect
+								x={result.box.x}
+								y={result.box.y}
+								width={result.box.w}
+								height={result.box.h}
+								fill="rgba(255, 255, 0, 0.41)"
+							/>
+							<text
+								x={result.box.x}
+								y={result.box.y + result.box.h}
+								fontSize={result.box.h}
+								textLength={result.box.w}
+								lengthAdjust="spacingAndGlyphs"
+								fill="red"
+								dominantBaseline="auto"
+							>
+								{result.text}
+							</text>
+						</g>
 					))}
-				</div>
+				</svg>
 			)}
 		</div>
 	)
