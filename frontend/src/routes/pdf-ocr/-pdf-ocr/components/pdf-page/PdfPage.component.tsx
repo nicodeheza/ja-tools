@@ -6,6 +6,7 @@ import styles from './PdfPage.module.css'
 interface Props {
 	pageNumber: number
 	ocrResults?: OcrResult[]
+	zoom: number
 }
 
 export interface PageApi {
@@ -13,7 +14,7 @@ export interface PageApi {
 }
 
 export const PdfPage = forwardRef(function PdfPage(
-	{pageNumber, ocrResults}: Props,
+	{pageNumber, ocrResults, zoom}: Props,
 	ref: Ref<PageApi>
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -24,7 +25,14 @@ export const PdfPage = forwardRef(function PdfPage(
 	}))
 
 	return (
-		<div className={styles.container}>
+		<div
+			className={styles.container}
+			style={{
+				width: canvasRef.current?.width,
+				height: canvasRef.current?.height,
+				zoom
+			}}
+		>
 			{status === 'loading' && <p>Loading page...</p>}
 			{status === 'error' && <p>{error?.message}</p>}
 			<canvas ref={canvasRef} />

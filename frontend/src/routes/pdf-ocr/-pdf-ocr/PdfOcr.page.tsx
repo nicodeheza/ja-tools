@@ -3,6 +3,8 @@ import {PdfBar} from './components/pdf-bar/PdfBar.component'
 import {PdfPage, type PageApi} from './components/pdf-page/PdfPage.component'
 import {useLoadPdf} from './services/pdf.service'
 import {useLoadOcr, useOcrDetect} from './services/ocr.service'
+import styles from './PdfOcr.module.css'
+import {useZoom} from './hooks/useZoom.hook'
 
 //TODO - persist file on navigation
 export const PdfOcr: FC = () => {
@@ -19,6 +21,7 @@ export const PdfOcr: FC = () => {
 
 	const {status: ocrLoadStatus, error: ocrLoadingError} = useLoadOcr()
 	const {detect, status: ocrStatus, data: ocrData} = useOcrDetect()
+	const {zoom} = useZoom()
 
 	const handleFileSelected = useCallback(
 		(file: File) => {
@@ -39,7 +42,7 @@ export const PdfOcr: FC = () => {
 	if (ocrLoadStatus === 'loading') return <p>Loading...</p>
 
 	return (
-		<div>
+		<div className={styles.page}>
 			<PdfBar
 				file={file}
 				onFileSelected={handleFileSelected}
@@ -49,24 +52,27 @@ export const PdfOcr: FC = () => {
 				onOcr={handleOcr}
 				ocrReady={ocrLoadStatus === 'success'}
 			/>
-			{(() => {
-				switch (loadPdfStatus) {
-					case 'idle':
-						return <p>Please load a PDF</p>
-					case 'loading':
-						return <p>Loading...</p>
-					case 'error':
-						return <p>{loadPdfError.message}</p>
-					case 'success':
-						return (
-							<PdfPage
-								pageNumber={currentPage}
-								ref={pageRef}
-								ocrResults={ocrStatus === 'success' ? ocrData[currentPage] : undefined}
-							/>
-						)
-				}
-			})()}
+			<div className={styles.viewport}>
+				{(() => {
+					switch (loadPdfStatus) {
+						case 'idle':
+							return <p>Please load a PDF</p>
+						case 'loading':
+							return <p>Loading...</p>
+						case 'error':
+							return <p>{loadPdfError.message}</p>
+						case 'success':
+							return (
+								<PdfPage
+									pageNumber={currentPage}
+									ref={pageRef}
+									ocrResults={ocrStatus === 'success' ? ocrData[currentPage] : undefined}
+									zoom={zoom}
+								/>
+							)
+					}
+				})()}
+			</div>
 		</div>
 	)
 }

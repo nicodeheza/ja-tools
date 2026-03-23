@@ -1,0 +1,14 @@
+.page {
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 60px);
+}
+
+.viewport {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	margin: 16px;
+	overflow: auto;
+	height: 100%;
+}
