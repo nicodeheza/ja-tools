@@ -5,6 +5,8 @@ import request from 'supertest'
 import * as aiModule from '../infrastructure/Ai/index.ai.js'
 import * as tokenizeModule from '../infrastructure/tokenizer/index.tokenizer.js'
 import * as dictDbQueriesModule from '../dict/db/queries.dict.js'
+import {beforeEach} from 'node:test'
+import {dictCache} from '../analyzer/infrastructure/dict.analyzer.js'
 
 vi.mock('../infrastructure/Ai/index.ai.js')
 vi.mock('../infrastructure/tokenizer/index.tokenizer.js')
@@ -14,6 +16,9 @@ const app = express()
 app.use(routes)
 
 describe('Generator Routes', () => {
+	beforeEach(() => {
+		dictCache.clear()
+	})
 	describe('GET /story', () => {
 		it('should stream analyzed AI generated text via SSE', async () => {
 			vi.mocked(aiModule.aiStreamResponse).mockImplementation(async function* () {

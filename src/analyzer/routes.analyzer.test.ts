@@ -4,6 +4,8 @@ import routes from './routes.analyzer.js'
 import request from 'supertest'
 import * as tokenizerModule from '../infrastructure/tokenizer/index.tokenizer.js'
 import * as dictModule from '../dict/index.dict.js'
+import {beforeEach} from 'node:test'
+import {dictCache} from './infrastructure/dict.analyzer.js'
 
 vi.mock('../infrastructure/tokenizer/index.tokenizer.js')
 vi.mock('../dict/index.dict.js')
@@ -13,6 +15,9 @@ app.use(express.json())
 app.use(routes)
 
 describe('Analyzer Routes', () => {
+	beforeEach(() => {
+		dictCache.clear()
+	})
 	describe('POST /analyze', () => {
 		it('should analyze Japanese text and return tokens with dictionary', async () => {
 			vi.mocked(tokenizerModule.tokenize).mockResolvedValue([
