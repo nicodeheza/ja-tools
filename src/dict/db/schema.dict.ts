@@ -1,5 +1,5 @@
 import {relations} from 'drizzle-orm'
-import {int, primaryKey, sqliteTable as table, text} from 'drizzle-orm/sqlite-core'
+import {index, int, primaryKey, sqliteTable as table, text} from 'drizzle-orm/sqlite-core'
 
 export const words = table('words', {
 	id: int().primaryKey({autoIncrement: true})
@@ -10,12 +10,16 @@ export const wordsRelations = relations(words, ({many}) => ({
 	sense: many(sense)
 }))
 
-export const kanjis = table('kanjis', {
-	id: int().primaryKey({autoIncrement: true}),
-	common: int({mode: 'boolean'}).notNull(),
-	text: text().notNull(),
-	wordId: int('word_id').notNull()
-})
+export const kanjis = table(
+	'kanjis',
+	{
+		id: int().primaryKey({autoIncrement: true}),
+		common: int({mode: 'boolean'}).notNull(),
+		text: text().notNull(),
+		wordId: int('word_id').notNull()
+	},
+	(t) => [index('kanjis_text_idx').on(t.text), index('kanjis_word_id_idx').on(t.wordId)]
+)
 export const kanjisRelations = relations(kanjis, ({one, many}) => ({
 	word: one(words, {
 		fields: [kanjis.wordId],
@@ -24,12 +28,16 @@ export const kanjisRelations = relations(kanjis, ({one, many}) => ({
 	kanas: many(kanasToKanjis)
 }))
 
-export const kanas = table('kanas', {
-	id: int().primaryKey({autoIncrement: true}),
-	common: int({mode: 'boolean'}).notNull(),
-	text: text().notNull(),
-	wordId: int('word_id').notNull()
-})
+export const kanas = table(
+	'kanas',
+	{
+		id: int().primaryKey({autoIncrement: true}),
+		common: int({mode: 'boolean'}).notNull(),
+		text: text().notNull(),
+		wordId: int('word_id').notNull()
+	},
+	(t) => [index('kanas_text_idx').on(t.text), index('kanas_word_id_idx').on(t.wordId)]
+)
 export const kanasRelations = relations(kanas, ({one, many}) => ({
 	word: one(words, {
 		fields: [kanas.wordId],
@@ -61,10 +69,14 @@ export const kanasToKanjisRelations = relations(kanasToKanjis, ({one}) => ({
 	})
 }))
 
-export const sense = table('sense', {
-	id: int().primaryKey({autoIncrement: true}),
-	wordId: int('word_id').notNull()
-})
+export const sense = table(
+	'sense',
+	{
+		id: int().primaryKey({autoIncrement: true}),
+		wordId: int('word_id').notNull()
+	},
+	(t) => [index('sense_word_id_idx').on(t.wordId)]
+)
 export const senseRelations = relations(sense, ({many, one}) => ({
 	words: one(words, {
 		fields: [sense.wordId],
@@ -115,11 +127,15 @@ export const senseToKanjiRelations = relations(senseToKanji, ({one}) => ({
 	})
 }))
 
-export const glosses = table('glosses', {
-	id: int().primaryKey({autoIncrement: true}),
-	text: text().notNull(),
-	senseId: int('sense_id').notNull()
-})
+export const glosses = table(
+	'glosses',
+	{
+		id: int().primaryKey({autoIncrement: true}),
+		text: text().notNull(),
+		senseId: int('sense_id').notNull()
+	},
+	(t) => [index('glosses_sense_id_idx').on(t.senseId)]
+)
 export const glossesRelations = relations(glosses, ({one}) => ({
 	// Fix: relate glosses to sense by senseId -> sense.id
 	sense: one(sense, {
@@ -178,7 +194,10 @@ export const senseToMecabPos = table(
 			.notNull()
 			.references(() => sense.id)
 	},
-	(t) => [primaryKey({columns: [t.mecabPosId, t.senseId]})]
+	(t) => [
+		primaryKey({columns: [t.mecabPosId, t.senseId]}),
+		index('sense_mecab_pos_sense_id_idx').on(t.senseId)
+	]
 )
 
 export const senseToMecabPosRelations = relations(senseToMecabPos, ({one}) => ({
