@@ -19,6 +19,11 @@ export interface AnalyzeRes {
 	dict: Dict
 }
 
+export interface BulkAnalyzeRes {
+	dict: Dict
+	result: Token[][]
+}
+
 interface Word {
 	id: string
 	kana: string[]

@@ -1,5 +1,5 @@
 import {getFurigana, haveKanji, katakaToHiragana} from './utils.analyzer.js'
-import {AnalyzeRes, Dict, Token, TokenizerToken} from './types.analyzer.js'
+import {AnalyzeRes, BulkAnalyzeRes, Dict, Token, TokenizerToken} from './types.analyzer.js'
 import {tokenizeText} from './infrastructure/tokenizer.analyzer.js'
 import {dictLookup} from './infrastructure/dict.analyzer.js'
 
@@ -44,6 +44,21 @@ export async function analyzeText(text: string): Promise<AnalyzeRes> {
 	}
 
 	return {dict, tokens}
+}
+
+const emptyResult: AnalyzeRes = {tokens: [], dict: {}}
+
+export async function analyzeBulk(texts: string[]): Promise<BulkAnalyzeRes> {
+	const settled = await Promise.allSettled(
+		texts.map((text) =>
+			text.trim() !== '' ? analyzeText(text) : Promise.resolve(emptyResult)
+		)
+	)
+	const items = settled.map((r) => (r.status === 'fulfilled' ? r.value : emptyResult))
+	return {
+		dict: Object.assign({}, ...items.map((i) => i.dict)),
+		result: items.map((i) => i.tokens)
+	}
 }
 
 function getPos(token: TokenizerToken) {
