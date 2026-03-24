@@ -1,5 +1,11 @@
 import {getFurigana, haveKanji, katakaToHiragana} from './utils.analyzer.js'
-import {AnalyzeRes, BulkAnalyzeRes, Dict, Token, TokenizerToken} from './types.analyzer.js'
+import {
+	AnalyzeRes,
+	BulkAnalyzeRes,
+	Dict,
+	Token,
+	TokenizerToken
+} from './types.analyzer.js'
 import {tokenizeText} from './infrastructure/tokenizer.analyzer.js'
 import {dictLookup} from './infrastructure/dict.analyzer.js'
 
@@ -8,39 +14,31 @@ const noWord = new Set(['記号', 'BOS/EOS'])
 export async function analyzeText(text: string): Promise<AnalyzeRes> {
 	const result: TokenizerToken[] = await tokenizeText(text)
 
+	const dictResults = await getDictResult(result)
+
 	let dict: Dict = {}
 	const tokens: Token[] = []
+	let wordIdx = 0
 
 	for (const mecabToken of result) {
-		const {basicForm} = mecabToken.feature
 		const pos = getPos(mecabToken)
 		const isWord = pos && !noWord.has(pos)
 
 		if (isWord) {
-			const {ids, dict: dictRes} = await getDictWords(
-				basicForm ?? mecabToken.surface,
-				pos
-			)
+			const {ids, dict: dictRes} = dictResults[wordIdx++]
 			dict = {...dict, ...dictRes}
-			const token: Token = {
+			tokens.push({
 				isWord: true,
 				original: mecabToken.surface,
 				mecabPos: pos,
-				basicForm: basicForm ?? '',
+				basicForm: mecabToken.feature.basicForm ?? '',
 				furigana: mecabToFurigana(mecabToken.surface, mecabToken.feature.reading ?? ''),
 				dictIds: ids
-			}
-			tokens.push(token)
-
+			})
 			continue
 		}
 
-		const token: Token = {
-			isWord: false,
-			original: mecabToken.surface
-		}
-
-		tokens.push(token)
+		tokens.push({isWord: false, original: mecabToken.surface})
 	}
 
 	return {dict, tokens}
@@ -86,4 +84,28 @@ async function getDictWords(word: string, pos: string) {
 	}, {} satisfies Dict)
 
 	return {ids, dict}
+}
+
+type WordEntry = {word: string; pos: string}
+async function getDictResult(
+	mecabTokens: TokenizerToken[]
+): Promise<{ids: string[]; dict: Dict}[]> {
+	const wordEntries: WordEntry[] = []
+
+	mecabTokens.forEach((mecabToken, i) => {
+		const pos = getPos(mecabToken)
+		if (pos && !noWord.has(pos)) {
+			wordEntries.push({
+				word: mecabToken.feature.basicForm ?? mecabToken.surface,
+				pos
+			})
+		}
+	})
+
+	const dictResults = await Promise.allSettled(
+		wordEntries.map((e) => getDictWords(e.word, e.pos))
+	)
+	return dictResults.map((r) =>
+		r.status === 'fulfilled' ? r.value : {ids: [], dict: {}}
+	)
 }
