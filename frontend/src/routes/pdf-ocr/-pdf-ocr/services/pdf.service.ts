@@ -8,7 +8,6 @@ import {
 	getSuccessState
 } from '../../../../helpers/async.helpers'
 
-// TODO - test
 interface PdfData {
 	totalPages: number
 	name: string
