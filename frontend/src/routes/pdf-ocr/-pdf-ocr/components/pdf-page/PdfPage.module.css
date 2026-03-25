@@ -19,10 +19,9 @@
 	opacity: 0.2;
 	text-wrap: nowrap;
 	font-size: 3rem;
-	transform: translateY(-6rem);
-
+	transform: translateY(calc(-3rem - 20px));
 	rt {
-		font-size: 2rem !important;
+		font-size: 0rem !important;
 	}
 }
 
@@ -32,4 +31,7 @@
 	color: white;
 	opacity: 1;
 	z-index: var(--selected-ocr-z-index);
+	rt {
+		font-size: 2rem !important;
+	}
 }
