@@ -59,7 +59,7 @@ class Pdf implements IPdf {
 
 		const validPage = Math.max(1, Math.min(pageNumber, this._totalPages))
 		const page = await this.document.getPage(validPage)
-		const viewport = page.getViewport({scale: 2.0})
+		const viewport = page.getViewport({scale: 5.0})
 
 		canvas.width = viewport.width
 		canvas.height = viewport.height

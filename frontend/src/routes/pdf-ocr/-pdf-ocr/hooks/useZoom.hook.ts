@@ -7,21 +7,21 @@ const ZOOM_MAX = 5.0
 type UseZoomReturn = {zoom: number}
 
 export function useZoom(): UseZoomReturn {
-    const [zoom, setZoom] = useState(1)
+	const [zoom, setZoom] = useState(0.3)
 
-    useEffect(() => {
-        const handleWheel = (event: WheelEvent) => {
-            if (!event.ctrlKey) return
-            event.preventDefault()
-            setZoom((prev) => {
-                const next = event.deltaY < 0 ? prev + ZOOM_STEP : prev - ZOOM_STEP
-                return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, parseFloat(next.toFixed(2))))
-            })
-        }
+	useEffect(() => {
+		const handleWheel = (event: WheelEvent) => {
+			if (!event.ctrlKey) return
+			event.preventDefault()
+			setZoom((prev) => {
+				const next = event.deltaY < 0 ? prev + ZOOM_STEP : prev - ZOOM_STEP
+				return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, parseFloat(next.toFixed(2))))
+			})
+		}
 
-        window.addEventListener('wheel', handleWheel, {passive: false})
-        return () => window.removeEventListener('wheel', handleWheel)
-    }, [])
+		window.addEventListener('wheel', handleWheel, {passive: false})
+		return () => window.removeEventListener('wheel', handleWheel)
+	}, [])
 
-    return {zoom}
+	return {zoom}
 }
