@@ -20,7 +20,7 @@ export const PdfOcr: FC = () => {
 	} = useLoadPdf()
 
 	const {status: ocrLoadStatus, error: ocrLoadingError} = useLoadOcr()
-	const {detect, status: ocrStatus, data: ocrData} = useOcrDetect()
+	const {detect, status: ocrStatus, data: ocrData, dict} = useOcrDetect()
 	const {zoom} = useZoom()
 
 	const handleFileSelected = useCallback(
@@ -67,6 +67,7 @@ export const PdfOcr: FC = () => {
 									pageNumber={currentPage}
 									ref={pageRef}
 									ocrResults={ocrStatus === 'success' ? ocrData[currentPage] : undefined}
+									dict={dict}
 									zoom={zoom}
 								/>
 							)

@@ -12,6 +12,10 @@
 	color: white;
 }
 
+.content {
+	z-index: var(--dict-tooltip-z-index);
+}
+
 .card {
 	background-color: black;
 	border: solid 1px white;

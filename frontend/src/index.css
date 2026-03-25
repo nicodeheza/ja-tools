@@ -6,6 +6,9 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	--selected-ocr-z-index: 1;
+	--dict-tooltip-z-index: 2;
 }
 
 body {

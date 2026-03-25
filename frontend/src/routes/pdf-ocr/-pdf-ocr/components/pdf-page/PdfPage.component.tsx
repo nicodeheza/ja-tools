@@ -1,11 +1,14 @@
 import {forwardRef, useImperativeHandle, useRef, type Ref} from 'react'
 import {useLoadPage} from '../../services/pdf.service'
-import type {OcrResult} from '../../pdfOcr.types'
+import type {AnalyzedOcrResult} from '../../pdfOcr.types'
 import styles from './PdfPage.module.css'
+import type {Dict} from '../../../../../types/analyzedText.types'
+import {AnalyzedText} from '../../../../../components/analyzed-text/AnalyzedText.component'
 
 interface Props {
 	pageNumber: number
-	ocrResults?: OcrResult[]
+	ocrResults?: AnalyzedOcrResult['data']
+	dict: Dict
 	zoom: number
 }
 
@@ -14,7 +17,7 @@ export interface PageApi {
 }
 
 export const PdfPage = forwardRef(function PdfPage(
-	{pageNumber, ocrResults, zoom}: Props,
+	{pageNumber, ocrResults, zoom, dict}: Props,
 	ref: Ref<PageApi>
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -37,35 +40,21 @@ export const PdfPage = forwardRef(function PdfPage(
 			{status === 'error' && <p>{error?.message}</p>}
 			<canvas ref={canvasRef} />
 			{ocrResults && ocrResults.length > 0 && (
-				<svg
-					className={styles.overlay}
-					width={canvasRef.current?.width}
-					height={canvasRef.current?.height}
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					{ocrResults.map((result, i) => (
-						<g key={i}>
-							<rect
-								x={result.box.x}
-								y={result.box.y}
-								width={result.box.w}
-								height={result.box.h}
-								fill="rgba(255, 255, 0, 0.41)"
-							/>
-							<text
-								x={result.box.x}
-								y={result.box.y + result.box.h}
-								fontSize={result.box.h}
-								textLength={result.box.w}
-								lengthAdjust="spacingAndGlyphs"
-								fill="red"
-								dominantBaseline="auto"
-							>
-								{result.text}
-							</text>
-						</g>
+				<div className={styles.overlay}>
+					{ocrResults.map((result) => (
+						<p
+							style={{
+								left: `${result.box.x}px`,
+								top: `${result.box.y}px`,
+								width: `${result.box.w}px`
+							}}
+							className={styles.line}
+							key={JSON.stringify(result.box)}
+						>
+							<AnalyzedText tokens={result.tokens} dict={dict} />
+						</p>
 					))}
-				</svg>
+				</div>
 			)}
 		</div>
 	)

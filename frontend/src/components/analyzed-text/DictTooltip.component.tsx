@@ -16,7 +16,7 @@ export const DictTooltip: FC<Props> = ({dict, ids, children}) => {
 				<samp className={styles.children}>{children}</samp>
 			</Trigger>
 			<Portal>
-				<Content>
+				<Content className={styles.content}>
 					<div className={styles.card}>
 						{ids.map((id) => (
 							<DictEntry word={dict[id]} key={id} />

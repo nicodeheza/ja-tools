@@ -9,9 +9,19 @@ export function getTextAnalyzeRes(text: string): Promise<AnalyzeRes> {
 	)
 }
 
+export function getBulkTextAnalyzedRes(texts: string[]): Promise<BulkAnalyzeRes> {
+	return post<BulkAnalyzeRes>(`${CONFIG.API_URL}/analyze/bulk`, texts, {
+		default: 'Error getting analyzed text'
+	})
+}
+
 interface AnalyzeRes {
 	tokens: Token[]
 	dict: Dict
+}
+interface BulkAnalyzeRes {
+	dict: Dict
+	result: Token[][]
 }
 
 type Token =
