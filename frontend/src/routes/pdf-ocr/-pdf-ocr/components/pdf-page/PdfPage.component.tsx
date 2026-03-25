@@ -46,7 +46,7 @@ export const PdfPage = forwardRef(function PdfPage(
 							style={{
 								left: `${result.box.x}px`,
 								top: `${result.box.y}px`,
-								width: `${result.box.w}px`
+								minWidth: `${result.box.w}px`
 							}}
 							className={styles.line}
 							key={JSON.stringify(result.box)}
