@@ -36,7 +36,6 @@ export const PdfPage = forwardRef(function PdfPage(
 				zoom
 			}}
 		>
-			{status === 'loading' && <p>Loading page...</p>}
 			{status === 'error' && <p>{error?.message}</p>}
 			<canvas ref={canvasRef} />
 			{ocrResults && ocrResults.length > 0 && (
