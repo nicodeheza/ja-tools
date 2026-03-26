@@ -11,6 +11,7 @@ interface Props {
 	onPageChange: (newPage: number) => void
 	onOcr: () => void
 	ocrReady?: boolean
+	ocrLoading?: boolean
 }
 
 export const PdfBar: FC<Props> = ({
@@ -20,15 +21,16 @@ export const PdfBar: FC<Props> = ({
 	totalPages,
 	onPageChange,
 	onOcr,
-	ocrReady = false
+	ocrReady = false,
+	ocrLoading = false
 }) => {
 	return (
 		<div className={styles.bar}>
 			<FileInput file={file} onFileChange={onFileSelected} accept={'application/pdf'}>
 				Upload a PDF
 			</FileInput>
-			<Button disabled={!file || !ocrReady} onClick={onOcr}>
-				OCR Document
+			<Button disabled={!file || !ocrReady || ocrLoading} onClick={onOcr}>
+				{ocrLoading ? 'OCR Loading' : 'OCR Document'}
 			</Button>
 			<Pages
 				currentPage={currentPage}

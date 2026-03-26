@@ -43,15 +43,16 @@ export const PdfOcr: FC = () => {
 
 	return (
 		<div className={styles.page}>
-			<PdfBar
-				file={file}
-				onFileSelected={handleFileSelected}
-				currentPage={currentPage}
-				totalPages={loadPdfData?.totalPages}
-				onPageChange={setCurrentPage}
-				onOcr={handleOcr}
-				ocrReady={ocrLoadStatus === 'success'}
-			/>
+		<PdfBar
+			file={file}
+			onFileSelected={handleFileSelected}
+			currentPage={currentPage}
+			totalPages={loadPdfData?.totalPages}
+			onPageChange={setCurrentPage}
+			onOcr={handleOcr}
+			ocrReady={ocrLoadStatus === 'success'}
+			ocrLoading={ocrStatus === 'loading'}
+		/>
 			<div className={styles.viewport}>
 				{(() => {
 					switch (loadPdfStatus) {

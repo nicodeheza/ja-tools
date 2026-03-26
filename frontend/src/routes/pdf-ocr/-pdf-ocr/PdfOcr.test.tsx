@@ -205,6 +205,27 @@ describe('PdfOcr', () => {
 				.mockReturnValue('data:image/png;base64,abc')
 		})
 
+		it('should disable the button and show "OCR Loading" label while OCR is in progress', async () => {
+			const user = userEvent.setup()
+			render(<PdfOcr />)
+
+			await waitFor(() => {
+				expect(screen.getByRole('button', {name: 'Upload a PDF'})).toBeInTheDocument()
+			})
+			await uploadPdf(user)
+
+			await waitFor(() => {
+				expect(screen.getByRole('button', {name: 'OCR Document'})).not.toBeDisabled()
+			})
+
+			vi.mocked(ocrInfrastructure.detect).mockReturnValue(new Promise(() => {}))
+
+			await user.click(screen.getByRole('button', {name: 'OCR Document'}))
+
+			const ocrButton = screen.getByRole('button', {name: 'OCR Loading'})
+			expect(ocrButton).toBeDisabled()
+		})
+
 		it('should display OCR results when OCR button is clicked', async () => {
 			const user = userEvent.setup()
 			render(<PdfOcr />)
