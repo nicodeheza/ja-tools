@@ -21,15 +21,17 @@ export function useFile() {
 export function useStoreHydration() {
 	const [isHydrating, setIsHydrating] = useState(true)
 	const [error, setError] = useState<Error | undefined>(undefined)
-	const {setFile} = useFile()
+	const restoreFile = usePdfStore((s) => s.restoreFile)
 
 	useEffect(() => {
 		loadFile()
 			.then((file) => {
-				if (file) setFile(file)
+				if (file) restoreFile(file)
 			})
 			.catch((err: unknown) => {
-				setError(err instanceof Error ? err : new Error('Failed to restore file from storage'))
+				setError(
+					err instanceof Error ? err : new Error('Failed to restore file from storage')
+				)
 			})
 			.finally(() => {
 				setIsHydrating(false)

@@ -135,6 +135,36 @@ describe('PdfOcr', () => {
 		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
 	})
 
+	it('should preserve currentPage when navigating away and back to the page', async () => {
+		const user = userEvent.setup()
+		render(<PdfOcr />)
+
+		await waitFor(() => {
+			expect(screen.getByRole('button', {name: 'Upload a PDF'})).toBeInTheDocument()
+		})
+		await uploadPdf(user)
+
+		// Navigate to page 2
+		await user.click(screen.getByRole('button', {name: '>'}))
+		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+
+		// Simulate navigating away — unmount without resetting the store,
+		// because the Zustand store persists across TanStack Router navigations
+		cleanup()
+
+		// Simulate returning to the page — loadFile returns the previously stored file
+		mockLoadFile.mockResolvedValue(testFile)
+		render(<PdfOcr />)
+
+		// currentPage should still be 2 — the bug resets it to 1 because
+		// useStoreHydration calls setFile() on mount, and setFile always resets currentPage
+		await waitFor(() => {
+			expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+		})
+		const canvas = document.querySelector('canvas')
+		expect(mockPdf.renderPage).toHaveBeenLastCalledWith(canvas, 2)
+	})
+
 	it('should be possible to go back to the previous page', async () => {
 		const user = userEvent.setup()
 		render(<PdfOcr />)

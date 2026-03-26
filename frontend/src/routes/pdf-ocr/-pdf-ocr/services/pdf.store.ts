@@ -7,6 +7,7 @@ interface PdfStore {
 	currentPage: number
 	pdfData: PdfData | undefined
 	setFile: (file: File) => void
+	restoreFile: (file: File) => void
 	setCurrentPage: (page: number) => void
 	setPdfData: (data: PdfData) => void
 }
@@ -19,6 +20,7 @@ export const usePdfStore = create<PdfStore>((set) => ({
 		saveFile(file)
 		set({file, currentPage: 1, pdfData: undefined})
 	},
+	restoreFile: (file) => set({file}),
 	setCurrentPage: (page) => set({currentPage: page}),
 	setPdfData: (data) => set({pdfData: data})
 }))
