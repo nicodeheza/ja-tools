@@ -1,6 +1,7 @@
 import {describe, expect, it, vi, afterEach} from 'vitest'
 import {renderHook, act, waitFor} from '@testing-library/react'
-import {useLoadPdf, useFile, useCurrentPage, resetStore} from './pdf.service'
+import {useLoadPdf, useFile, useCurrentPage, useStoreHydration, resetStore} from './pdf.service'
+import * as pdfStorage from './pdf.storage'
 
 // vi.hoisted ensures mockPdf is available before the hoisted vi.mock call
 const mockPdf = vi.hoisted(() => ({
@@ -14,9 +15,18 @@ vi.mock('../infrastructure/pdf.infrastructure.js', () => ({
 	pdf: mockPdf
 }))
 
+// Mock pdf.storage — the factory ensures loadFile resolves to undefined by default.
+vi.mock('./pdf.storage', () => ({
+	loadFile: vi.fn().mockResolvedValue(undefined),
+	saveFile: vi.fn().mockResolvedValue(undefined),
+	clearFile: vi.fn().mockResolvedValue(undefined)
+}))
+
 afterEach(() => {
 	vi.clearAllMocks()
 	resetStore()
+	// Restore default: loadFile resolves to undefined (no stored file)
+	vi.mocked(pdfStorage.loadFile).mockResolvedValue(undefined)
 })
 
 describe('useLoadPdf', () => {
@@ -267,5 +277,84 @@ describe('useCurrentPage', () => {
 		})
 
 		expect(result.current.currentPage).toBe(1)
+	})
+})
+
+describe('useStoreHydration', () => {
+	it('should have isHydrating true and no error initially', () => {
+		const {result} = renderHook(() => useStoreHydration())
+
+		expect(result.current.isHydrating).toBe(true)
+		expect(result.current.error).toBeUndefined()
+	})
+
+	it('should become isHydrating false with no error after loadFile resolves with no file', async () => {
+		vi.mocked(pdfStorage.loadFile).mockResolvedValue(undefined)
+
+		const {result} = renderHook(() => useStoreHydration())
+		expect(result.current.isHydrating).toBe(true)
+
+		await waitFor(() => {
+			expect(result.current.isHydrating).toBe(false)
+		})
+
+		expect(result.current.error).toBeUndefined()
+	})
+
+	it('should set the file in the store and become isHydrating false when loadFile resolves with a file', async () => {
+		const storedFile = new File(['pdf'], 'stored.pdf', {type: 'application/pdf'})
+		vi.mocked(pdfStorage.saveFile).mockResolvedValue(undefined)
+		vi.mocked(pdfStorage.loadFile).mockResolvedValue(storedFile)
+
+		const {result: hydrating} = renderHook(() => useStoreHydration())
+		const {result: fileHook} = renderHook(() => useFile())
+
+		expect(hydrating.current.isHydrating).toBe(true)
+
+		await waitFor(() => {
+			expect(hydrating.current.isHydrating).toBe(false)
+		})
+
+		expect(hydrating.current.error).toBeUndefined()
+		expect(fileHook.current.file).toBe(storedFile)
+	})
+
+	it('should set error and become isHydrating false when loadFile rejects', async () => {
+		const storageError = new Error('IndexedDB error')
+		vi.mocked(pdfStorage.loadFile).mockRejectedValue(storageError)
+
+		const {result} = renderHook(() => useStoreHydration())
+		expect(result.current.isHydrating).toBe(true)
+
+		await waitFor(() => {
+			expect(result.current.isHydrating).toBe(false)
+		})
+
+		expect(result.current.error).toBe(storageError)
+	})
+
+	it('should wrap non-Error rejections in a generic Error', async () => {
+		vi.mocked(pdfStorage.loadFile).mockRejectedValue('storage failed')
+
+		const {result} = renderHook(() => useStoreHydration())
+
+		await waitFor(() => {
+			expect(result.current.isHydrating).toBe(false)
+		})
+
+		expect(result.current.error).toBeInstanceOf(Error)
+		expect(result.current.error?.message).toBe('Failed to restore file from storage')
+	})
+
+	it('should not call saveFile when loading from storage', async () => {
+		const storedFile = new File(['pdf'], 'stored.pdf', {type: 'application/pdf'})
+		vi.mocked(pdfStorage.loadFile).mockResolvedValue(storedFile)
+		vi.mocked(pdfStorage.saveFile).mockResolvedValue(undefined)
+
+		renderHook(() => useStoreHydration())
+
+		await waitFor(() => {
+			expect(pdfStorage.saveFile).not.toHaveBeenCalled()
+		})
 	})
 })

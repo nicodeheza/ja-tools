@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState, type RefObject} from 'react'
+import {useEffect, useRef, useState, useCallback, type RefObject} from 'react'
 import {useShallow} from 'zustand/react/shallow'
 import {pdf} from '../infrastructure/pdf.infrastructure'
 import type {AsyncData, IdleAsyncData} from '../../../../types/asyncData.types'
@@ -10,11 +10,35 @@ import {
 } from '../../../../helpers/async.helpers'
 import {usePdfStore} from './pdf.store'
 import type {PdfData} from '../pdfOcr.types'
+import {loadFile} from './pdf.storage'
 
 export {resetStore} from './pdf.store'
 
 export function useFile() {
 	return usePdfStore(useShallow((s) => ({file: s.file, setFile: s.setFile})))
+}
+
+export function useStoreHydration() {
+	const [isHydrating, setIsHydrating] = useState(true)
+	const [error, setError] = useState<Error | undefined>(undefined)
+	const {setFile} = useFile()
+
+	useEffect(() => {
+		loadFile()
+			.then((file) => {
+				if (file) setFile(file)
+			})
+			.catch((err: unknown) => {
+				setError(err instanceof Error ? err : new Error('Failed to restore file from storage'))
+			})
+			.finally(() => {
+				setIsHydrating(false)
+			})
+		// Intentionally runs only on mount
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	return {isHydrating, error}
 }
 
 export function useCurrentPage() {
@@ -58,10 +82,11 @@ export function useLoadPdf(): UseLoadPdfReturn {
 		if (file && asyncState.status === 'idle') {
 			loadPdf(file)
 		}
-		// Intentionally runs only on mount — file/loadPdf changes after mount
-		// are driven by explicit user actions via setFile, not this effect.
+		// Runs when file changes so that a file restored from storage (set after mount
+		// by useStoreHydration) also triggers the auto-load. The ref guard ensures it
+		// only fires once — subsequent loads are driven by explicit user actions.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [file])
 
 	return {loadPdf, ...asyncState}
 }

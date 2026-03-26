@@ -15,12 +15,21 @@ const mockPdf = vi.hoisted(() => ({
 	name: 'test.pdf'
 }))
 
+// vi.hoisted so mockLoadFile can be overridden per-test before the mock factory runs
+const mockLoadFile = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+
 vi.mock('./infrastructure/pdf.infrastructure.js', () => ({
 	pdf: mockPdf
 }))
 
 vi.mock('./infrastructure/ocr.infrastructure')
 vi.mock('../../../api/analyze.api')
+
+vi.mock('./services/pdf.storage', () => ({
+	loadFile: mockLoadFile,
+	saveFile: vi.fn().mockResolvedValue(undefined),
+	clearFile: vi.fn().mockResolvedValue(undefined)
+}))
 
 const testFile = new File(['pdf content'], 'test.pdf', {type: 'application/pdf'})
 
@@ -47,6 +56,26 @@ describe('PdfOcr', () => {
 		cleanup()
 		vi.clearAllMocks()
 		resetStore()
+		// Restore default: loadFile resolves to undefined (no stored file)
+		mockLoadFile.mockResolvedValue(undefined)
+	})
+
+	it('should load a file if the store has a file', async () => {
+		// Mock storage to return a file — useStoreHydration will set it in the store on mount
+		mockLoadFile.mockResolvedValue(testFile)
+
+		render(<PdfOcr />)
+
+		// useStoreHydration calls loadFile on mount, sets the file in the store,
+		// then useLoadPdf's mount effect auto-triggers loadPdf
+		await waitFor(() => {
+			expect(mockPdf.loadPdf).toHaveBeenCalledWith(testFile)
+		})
+
+		// PDF loaded — nav buttons become enabled
+		await waitFor(() => {
+			expect(screen.getByRole('button', {name: '>'})).not.toBeDisabled()
+		})
 	})
 
 	it('should be possible to load a pdf', async () => {

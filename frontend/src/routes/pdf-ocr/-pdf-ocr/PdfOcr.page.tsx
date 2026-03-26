@@ -1,7 +1,12 @@
 import {useRef, useCallback, type FC} from 'react'
 import {PdfBar} from './components/pdf-bar/PdfBar.component'
 import {PdfPage, type PageApi} from './components/pdf-page/PdfPage.component'
-import {useLoadPdf, useFile, useCurrentPage} from './services/pdf.service'
+import {
+	useLoadPdf,
+	useFile,
+	useCurrentPage,
+	useStoreHydration
+} from './services/pdf.service'
 import {useLoadOcr, useOcrDetect} from './services/ocr.service'
 import styles from './PdfOcr.module.css'
 import {useZoom} from './hooks/useZoom.hook'
@@ -20,6 +25,7 @@ export const PdfOcr: FC = () => {
 
 	const {status: ocrLoadStatus, error: ocrLoadingError} = useLoadOcr()
 	const {detect, status: ocrStatus, data: ocrData, dict} = useOcrDetect()
+	const {isHydrating: isStoreLoading, error: storeError} = useStoreHydration()
 	const {zoom} = useZoom()
 
 	const handleFileSelected = useCallback(
@@ -36,21 +42,22 @@ export const PdfOcr: FC = () => {
 		detect(image, currentPage)
 	}
 
-	if (ocrLoadStatus === 'error') return <p>{ocrLoadingError?.message}</p>
-	if (ocrLoadStatus === 'loading') return <p>Loading...</p>
+	if (ocrLoadStatus === 'error' || storeError)
+		return <p>{ocrLoadingError?.message || storeError?.message}</p>
+	if (ocrLoadStatus === 'loading' || isStoreLoading) return <p>Loading...</p>
 
 	return (
 		<div className={styles.page}>
-		<PdfBar
-			file={file}
-			onFileSelected={handleFileSelected}
-			currentPage={currentPage}
-			totalPages={loadPdfData?.totalPages}
-			onPageChange={setCurrentPage}
-			onOcr={handleOcr}
-			ocrReady={ocrLoadStatus === 'success'}
-			ocrLoading={ocrStatus === 'loading'}
-		/>
+			<PdfBar
+				file={file}
+				onFileSelected={handleFileSelected}
+				currentPage={currentPage}
+				totalPages={loadPdfData?.totalPages}
+				onPageChange={setCurrentPage}
+				onOcr={handleOcr}
+				ocrReady={ocrLoadStatus === 'success'}
+				ocrLoading={ocrStatus === 'loading'}
+			/>
 			<div className={styles.viewport}>
 				{(() => {
 					switch (loadPdfStatus) {
