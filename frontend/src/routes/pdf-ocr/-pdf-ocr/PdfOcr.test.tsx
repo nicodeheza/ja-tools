@@ -5,6 +5,7 @@ import {PdfOcr} from './PdfOcr.page'
 import * as ocrInfrastructure from './infrastructure/ocr.infrastructure'
 import * as analyzeApi from '../../../api/analyze.api'
 import type {OcrResult} from './pdfOcr.types'
+import {resetStore} from './services/pdf.service'
 
 // vi.hoisted ensures mockPdf is initialized before the hoisted vi.mock call
 const mockPdf = vi.hoisted(() => ({
@@ -45,6 +46,7 @@ describe('PdfOcr', () => {
 	afterEach(() => {
 		cleanup()
 		vi.clearAllMocks()
+		resetStore()
 	})
 
 	it('should be possible to load a pdf', async () => {

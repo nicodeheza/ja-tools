@@ -1,4 +1,5 @@
-import {useEffect, useRef, useState, type RefObject} from 'react'
+import {useCallback, useEffect, useRef, useState, type RefObject} from 'react'
+import {useShallow} from 'zustand/react/shallow'
 import {pdf} from '../infrastructure/pdf.infrastructure'
 import type {AsyncData, IdleAsyncData} from '../../../../types/asyncData.types'
 import {
@@ -7,40 +8,62 @@ import {
 	getLoadingState,
 	getSuccessState
 } from '../../../../helpers/async.helpers'
+import {usePdfStore} from './pdf.store'
+import type {PdfData} from '../pdfOcr.types'
 
-interface PdfData {
-	totalPages: number
-	name: string
+export {resetStore} from './pdf.store'
+
+export function useFile() {
+	return usePdfStore(useShallow((s) => ({file: s.file, setFile: s.setFile})))
 }
 
-type UseLoadPdfReturn = {
-	loadPdf: (file: File) => void
-} & IdleAsyncData<PdfData>
+export function useCurrentPage() {
+	return usePdfStore(
+		useShallow((s) => ({currentPage: s.currentPage, setCurrentPage: s.setCurrentPage}))
+	)
+}
+
+type UseLoadPdfReturn = {loadPdf: (file: File) => void} & IdleAsyncData<PdfData>
 
 export function useLoadPdf(): UseLoadPdfReturn {
-	const [asyncData, setAsyncData] = useState<IdleAsyncData<PdfData>>(getIdleState())
+	const {file, pdfData, setPdfData} = usePdfStore(
+		useShallow((s) => ({file: s.file, pdfData: s.pdfData, setPdfData: s.setPdfData}))
+	)
 
-	const loadPdf = (file: File) => {
-		setAsyncData(getLoadingState())
+	const [asyncState, setAsyncState] = useState<IdleAsyncData<PdfData>>(
+		pdfData ? getSuccessState(pdfData) : getIdleState()
+	)
 
-		pdf
-			.loadPdf(file)
-			.then(() => {
-				setAsyncData(
-					getSuccessState<PdfData>({
-						totalPages: pdf.totalPages,
-						name: pdf.name
-					})
-				)
-			})
-			.catch((err: unknown) => {
-				const error =
-					err instanceof Error ? err : new Error('Failed to load PDF document')
-				setAsyncData(getErrorState(error))
-			})
-	}
+	const loadPdf = useCallback(
+		(file: File) => {
+			setAsyncState(getLoadingState())
 
-	return {loadPdf, ...asyncData}
+			pdf
+				.loadPdf(file)
+				.then(() => {
+					const data: PdfData = {totalPages: pdf.totalPages, name: pdf.name}
+					setPdfData(data)
+					setAsyncState(getSuccessState(data))
+				})
+				.catch((err: unknown) => {
+					const error =
+						err instanceof Error ? err : new Error('Failed to load PDF document')
+					setAsyncState(getErrorState(error))
+				})
+		},
+		[setPdfData]
+	)
+
+	useEffect(() => {
+		if (file && asyncState.status === 'idle') {
+			loadPdf(file)
+		}
+		// Intentionally runs only on mount — file/loadPdf changes after mount
+		// are driven by explicit user actions via setFile, not this effect.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	return {loadPdf, ...asyncState}
 }
 
 interface UseLoadPageParams {

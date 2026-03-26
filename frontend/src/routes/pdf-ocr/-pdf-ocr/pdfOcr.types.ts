@@ -1,5 +1,10 @@
 import type {Dict, Token} from '../../../types/analyzedText.types'
 
+export interface PdfData {
+	totalPages: number
+	name: string
+}
+
 interface Box {
 	x: number
 	y: number

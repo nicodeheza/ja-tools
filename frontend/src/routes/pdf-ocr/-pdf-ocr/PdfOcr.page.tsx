@@ -1,16 +1,15 @@
-import {useRef, useState, useCallback, type FC} from 'react'
+import {useRef, useCallback, type FC} from 'react'
 import {PdfBar} from './components/pdf-bar/PdfBar.component'
 import {PdfPage, type PageApi} from './components/pdf-page/PdfPage.component'
-import {useLoadPdf} from './services/pdf.service'
+import {useLoadPdf, useFile, useCurrentPage} from './services/pdf.service'
 import {useLoadOcr, useOcrDetect} from './services/ocr.service'
 import styles from './PdfOcr.module.css'
 import {useZoom} from './hooks/useZoom.hook'
 
-//TODO - persist file on navigation
 export const PdfOcr: FC = () => {
 	const pageRef = useRef<PageApi>(null)
-	const [currentPage, setCurrentPage] = useState(1)
-	const [file, setFile] = useState<File | undefined>()
+	const {file, setFile} = useFile()
+	const {currentPage, setCurrentPage} = useCurrentPage()
 
 	const {
 		loadPdf,
@@ -25,11 +24,10 @@ export const PdfOcr: FC = () => {
 
 	const handleFileSelected = useCallback(
 		(file: File) => {
-			setCurrentPage(1)
 			setFile(file)
 			loadPdf(file)
 		},
-		[loadPdf]
+		[setFile, loadPdf]
 	)
 
 	const handleOcr = () => {
