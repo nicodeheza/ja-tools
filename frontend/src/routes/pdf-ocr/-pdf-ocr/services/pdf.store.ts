@@ -1,13 +1,13 @@
 import {create} from 'zustand/react'
 import type {PdfData} from '../pdfOcr.types'
-import {saveFile} from './pdf.storage'
+import {saveCurrentPage, saveFile} from './pdf.storage'
 
 interface PdfStore {
 	file: File | undefined
 	currentPage: number
 	pdfData: PdfData | undefined
 	setFile: (file: File) => void
-	restoreFile: (file: File) => void
+	restoreFile: (file: File, currentPage: number) => void
 	setCurrentPage: (page: number) => void
 	setPdfData: (data: PdfData) => void
 }
@@ -18,10 +18,14 @@ export const usePdfStore = create<PdfStore>((set) => ({
 	pdfData: undefined,
 	setFile: (file) => {
 		saveFile(file)
+		saveCurrentPage(1)
 		set({file, currentPage: 1, pdfData: undefined})
 	},
-	restoreFile: (file) => set({file}),
-	setCurrentPage: (page) => set({currentPage: page}),
+	restoreFile: (file, currentPage) => set({file, currentPage}),
+	setCurrentPage: (page) => {
+		set({currentPage: page})
+		saveCurrentPage(page)
+	},
 	setPdfData: (data) => set({pdfData: data})
 }))
 

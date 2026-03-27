@@ -17,6 +17,7 @@ const mockPdf = vi.hoisted(() => ({
 
 // vi.hoisted so mockLoadFile can be overridden per-test before the mock factory runs
 const mockLoadFile = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+const mockLoadCurrentPage = vi.hoisted(() => vi.fn().mockReturnValue(undefined))
 
 vi.mock('./infrastructure/pdf.infrastructure.js', () => ({
 	pdf: mockPdf
@@ -28,7 +29,9 @@ vi.mock('../../../api/analyze.api')
 vi.mock('./services/pdf.storage', () => ({
 	loadFile: mockLoadFile,
 	saveFile: vi.fn().mockResolvedValue(undefined),
-	clearFile: vi.fn().mockResolvedValue(undefined)
+	clearFile: vi.fn().mockResolvedValue(undefined),
+	saveCurrentPage: vi.fn(),
+	loadCurrentPage: mockLoadCurrentPage
 }))
 
 const testFile = new File(['pdf content'], 'test.pdf', {type: 'application/pdf'})
@@ -56,8 +59,9 @@ describe('PdfOcr', () => {
 		cleanup()
 		vi.clearAllMocks()
 		resetStore()
-		// Restore default: loadFile resolves to undefined (no stored file)
+		// Restore defaults: no stored file, no stored page
 		mockLoadFile.mockResolvedValue(undefined)
+		mockLoadCurrentPage.mockReturnValue(undefined)
 	})
 
 	it('should load a file if the store has a file', async () => {
@@ -76,6 +80,38 @@ describe('PdfOcr', () => {
 		await waitFor(() => {
 			expect(screen.getByRole('button', {name: '>'})).not.toBeDisabled()
 		})
+	})
+
+	it('should restore the last visited page on refresh when a file is in storage', async () => {
+		const user = userEvent.setup()
+		render(<PdfOcr />)
+
+		await waitFor(() => {
+			expect(screen.getByRole('button', {name: 'Upload a PDF'})).toBeInTheDocument()
+		})
+		await uploadPdf(user)
+
+		// Navigate to page 2
+		await user.click(screen.getByRole('button', {name: '>'}))
+		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+
+		// Simulate a full page refresh:
+		// the Zustand store is wiped (currentPage resets to 1) and the component unmounts
+		resetStore()
+		cleanup()
+
+		// Storage has both the file and the last visited page (2)
+		mockLoadFile.mockResolvedValue(testFile)
+		mockLoadCurrentPage.mockReturnValue(2)
+
+		render(<PdfOcr />)
+
+		// Should restore page 2, not default to page 1
+		await waitFor(() => {
+			expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+		})
+		const canvas = document.querySelector('canvas')
+		expect(mockPdf.renderPage).toHaveBeenLastCalledWith(canvas, 2)
 	})
 
 	it('should be possible to load a pdf', async () => {
@@ -152,8 +188,10 @@ describe('PdfOcr', () => {
 		// because the Zustand store persists across TanStack Router navigations
 		cleanup()
 
-		// Simulate returning to the page — loadFile returns the previously stored file
+		// Simulate returning to the page — loadFile returns the previously stored file,
+		// and loadCurrentPage returns the page that was saved when the user navigated to page 2
 		mockLoadFile.mockResolvedValue(testFile)
+		mockLoadCurrentPage.mockReturnValue(2)
 		render(<PdfOcr />)
 
 		// currentPage should still be 2 — the bug resets it to 1 because

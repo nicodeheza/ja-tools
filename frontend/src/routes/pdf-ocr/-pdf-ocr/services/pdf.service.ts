@@ -10,7 +10,7 @@ import {
 } from '../../../../helpers/async.helpers'
 import {usePdfStore} from './pdf.store'
 import type {PdfData} from '../pdfOcr.types'
-import {loadFile} from './pdf.storage'
+import {loadCurrentPage, loadFile} from './pdf.storage'
 
 export {resetStore} from './pdf.store'
 
@@ -26,7 +26,7 @@ export function useStoreHydration() {
 	useEffect(() => {
 		loadFile()
 			.then((file) => {
-				if (file) restoreFile(file)
+				if (file) restoreFile(file, loadCurrentPage())
 			})
 			.catch((err: unknown) => {
 				setError(

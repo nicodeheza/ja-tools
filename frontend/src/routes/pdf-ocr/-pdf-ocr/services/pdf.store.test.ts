@@ -6,7 +6,9 @@ import {usePdfStore, resetStore} from './pdf.store'
 vi.mock('./pdf.storage', () => ({
 	loadFile: vi.fn().mockResolvedValue(undefined),
 	saveFile: vi.fn().mockResolvedValue(undefined),
-	clearFile: vi.fn().mockResolvedValue(undefined)
+	clearFile: vi.fn().mockResolvedValue(undefined),
+	saveCurrentPage: vi.fn(),
+	loadCurrentPage: vi.fn().mockReturnValue(1)
 }))
 
 afterEach(() => {
@@ -50,6 +52,46 @@ describe('setFile', () => {
 
 		expect(usePdfStore.getState().currentPage).toBe(1)
 		expect(usePdfStore.getState().pdfData).toBeUndefined()
+	})
+
+	it('should call saveCurrentPage with 1 when setFile is called', () => {
+		usePdfStore.getState().setFile(new File(['pdf'], 'test.pdf', {type: 'application/pdf'}))
+
+		expect(pdfStorage.saveCurrentPage).toHaveBeenCalledWith(1)
+	})
+})
+
+describe('setCurrentPage', () => {
+	it('should update currentPage in the store', () => {
+		usePdfStore.getState().setCurrentPage(5)
+
+		expect(usePdfStore.getState().currentPage).toBe(5)
+	})
+
+	it('should call saveCurrentPage with the new page', () => {
+		usePdfStore.getState().setCurrentPage(3)
+
+		expect(pdfStorage.saveCurrentPage).toHaveBeenCalledWith(3)
+	})
+})
+
+describe('restoreFile', () => {
+	it('should set file and currentPage in the store', () => {
+		const file = new File(['pdf'], 'test.pdf', {type: 'application/pdf'})
+
+		usePdfStore.getState().restoreFile(file, 4)
+
+		expect(usePdfStore.getState().file).toBe(file)
+		expect(usePdfStore.getState().currentPage).toBe(4)
+	})
+
+	it('should not call saveFile or saveCurrentPage', () => {
+		const file = new File(['pdf'], 'test.pdf', {type: 'application/pdf'})
+
+		usePdfStore.getState().restoreFile(file, 2)
+
+		expect(pdfStorage.saveFile).not.toHaveBeenCalled()
+		expect(pdfStorage.saveCurrentPage).not.toHaveBeenCalled()
 	})
 })
 

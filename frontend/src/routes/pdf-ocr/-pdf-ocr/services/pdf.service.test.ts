@@ -19,7 +19,9 @@ vi.mock('../infrastructure/pdf.infrastructure.js', () => ({
 vi.mock('./pdf.storage', () => ({
 	loadFile: vi.fn().mockResolvedValue(undefined),
 	saveFile: vi.fn().mockResolvedValue(undefined),
-	clearFile: vi.fn().mockResolvedValue(undefined)
+	clearFile: vi.fn().mockResolvedValue(undefined),
+	saveCurrentPage: vi.fn(),
+	loadCurrentPage: vi.fn().mockReturnValue(1)
 }))
 
 afterEach(() => {
