@@ -1,7 +1,13 @@
 import {describe, expect, it, vi, afterEach} from 'vitest'
 import {renderHook, act, waitFor} from '@testing-library/react'
-import {useLoadPdf, useFile, useCurrentPage, useStoreHydration, resetStore} from './pdf.service'
-import * as pdfStorage from './pdf.storage'
+import {
+	useLoadPdf,
+	useFile,
+	useCurrentPage,
+	useStoreHydration,
+	resetStore
+} from './pdf.service'
+import * as pdfStorage from '../stores/pdf.storage'
 
 // vi.hoisted ensures mockPdf is available before the hoisted vi.mock call
 const mockPdf = vi.hoisted(() => ({
@@ -16,7 +22,7 @@ vi.mock('../infrastructure/pdf.infrastructure.js', () => ({
 }))
 
 // Mock pdf.storage — the factory ensures loadFile resolves to undefined by default.
-vi.mock('./pdf.storage', () => ({
+vi.mock('../stores/pdf.storage', () => ({
 	loadFile: vi.fn().mockResolvedValue(undefined),
 	saveFile: vi.fn().mockResolvedValue(undefined),
 	clearFile: vi.fn().mockResolvedValue(undefined),

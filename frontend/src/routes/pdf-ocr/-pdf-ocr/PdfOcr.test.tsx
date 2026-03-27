@@ -26,7 +26,7 @@ vi.mock('./infrastructure/pdf.infrastructure.js', () => ({
 vi.mock('./infrastructure/ocr.infrastructure')
 vi.mock('../../../api/analyze.api')
 
-vi.mock('./services/pdf.storage', () => ({
+vi.mock('./stores/pdf.storage', () => ({
 	loadFile: mockLoadFile,
 	saveFile: vi.fn().mockResolvedValue(undefined),
 	clearFile: vi.fn().mockResolvedValue(undefined),

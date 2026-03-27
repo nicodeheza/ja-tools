@@ -8,11 +8,11 @@ import {
 	getLoadingState,
 	getSuccessState
 } from '../../../../helpers/async.helpers'
-import {usePdfStore} from './pdf.store'
+import {usePdfStore} from '../stores/pdf.store'
 import type {PdfData} from '../pdfOcr.types'
-import {loadCurrentPage, loadFile} from './pdf.storage'
+import {loadCurrentPage, loadFile} from '../stores/pdf.storage'
 
-export {resetStore} from './pdf.store'
+export {resetStore} from '../stores/pdf.store'
 
 export function useFile() {
 	return usePdfStore(useShallow((s) => ({file: s.file, setFile: s.setFile})))
