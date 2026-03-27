@@ -1,6 +1,7 @@
 import {create} from 'zustand/react'
 import type {PdfData} from '../pdfOcr.types'
 import {saveCurrentPage, saveFile} from './pdf.storage'
+import {resetOcrStore} from './ocr.store'
 
 interface PdfStore {
 	file: File | undefined
@@ -19,6 +20,7 @@ export const usePdfStore = create<PdfStore>((set) => ({
 	setFile: (file) => {
 		saveFile(file)
 		saveCurrentPage(1)
+		resetOcrStore()
 		set({file, currentPage: 1, pdfData: undefined})
 	},
 	restoreFile: (file, currentPage) => set({file, currentPage}),

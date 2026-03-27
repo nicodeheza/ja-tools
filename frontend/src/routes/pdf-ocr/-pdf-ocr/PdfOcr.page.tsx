@@ -72,7 +72,7 @@ export const PdfOcr: FC = () => {
 								<PdfPage
 									pageNumber={currentPage}
 									ref={pageRef}
-									ocrResults={ocrStatus === 'success' ? ocrData[currentPage] : undefined}
+									ocrResults={ocrData[currentPage]}
 									dict={dict}
 									zoom={zoom}
 								/>

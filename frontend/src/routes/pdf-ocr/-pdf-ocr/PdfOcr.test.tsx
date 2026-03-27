@@ -6,6 +6,7 @@ import * as ocrInfrastructure from './infrastructure/ocr.infrastructure'
 import * as analyzeApi from '../../../api/analyze.api'
 import type {OcrResult} from './pdfOcr.types'
 import {resetStore} from './services/pdf.service'
+import {resetOcrStore} from './stores/ocr.store'
 
 // vi.hoisted ensures mockPdf is initialized before the hoisted vi.mock call
 const mockPdf = vi.hoisted(() => ({
@@ -59,6 +60,7 @@ describe('PdfOcr', () => {
 		cleanup()
 		vi.clearAllMocks()
 		resetStore()
+		resetOcrStore()
 		// Restore defaults: no stored file, no stored page
 		mockLoadFile.mockResolvedValue(undefined)
 		mockLoadCurrentPage.mockReturnValue(undefined)
@@ -395,6 +397,40 @@ describe('PdfOcr', () => {
 				expect(screen.queryByText('認識')).not.toBeInTheDocument()
 				expect(screen.queryByText('テスト')).not.toBeInTheDocument()
 			})
+		})
+
+		it('should preserve OCR results when navigating away and back', async () => {
+			const user = userEvent.setup()
+			render(<PdfOcr />)
+
+			await waitFor(() => {
+				expect(screen.getByRole('button', {name: 'Upload a PDF'})).toBeInTheDocument()
+			})
+			await uploadPdf(user)
+
+			await waitFor(() => {
+				expect(screen.getByRole('button', {name: 'OCR Document'})).not.toBeDisabled()
+			})
+
+			await user.click(screen.getByRole('button', {name: 'OCR Document'}))
+
+			await waitFor(() => {
+				expect(screen.getByText('認識')).toBeInTheDocument()
+				expect(screen.getByText('テスト')).toBeInTheDocument()
+			})
+
+			// Simulate navigating away and back — store is NOT reset, only component unmounts
+			cleanup()
+			mockLoadFile.mockResolvedValue(testFile)
+			mockLoadCurrentPage.mockReturnValue(1)
+			render(<PdfOcr />)
+
+			// OCR results should still be visible without re-running OCR
+			await waitFor(() => {
+				expect(screen.getByText('認識')).toBeInTheDocument()
+				expect(screen.getByText('テスト')).toBeInTheDocument()
+			})
+			expect(ocrInfrastructure.detect).toHaveBeenCalledTimes(1)
 		})
 
 		it('should call analyze API with OCR texts and display analyzed tokens', async () => {

@@ -24,3 +24,5 @@ export interface AnalyzedOcrResult {
 	}[]
 	dict: Dict
 }
+
+export type OcrPages = Record<number, AnalyzedOcrResult['data']>

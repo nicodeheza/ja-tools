@@ -6,9 +6,10 @@ import {
 	getLoadingState,
 	getSuccessState
 } from '../../../../helpers/async.helpers'
-import type {AnalyzedOcrResult, OcrResult} from '../pdfOcr.types'
+import type {AnalyzedOcrResult, OcrPages, OcrResult} from '../pdfOcr.types'
 import {getBulkTextAnalyzedRes} from '../../../../api/analyze.api'
 import type {Dict} from '../../../../types/analyzedText.types'
+import {useOcrStore} from '../stores/ocr.store'
 
 type UseLoadOcrReturn = Omit<AsyncData<undefined>, 'data'>
 
@@ -31,19 +32,19 @@ export function useLoadOcr(): UseLoadOcrReturn {
 	return asyncData
 }
 
-type OcrPages = Record<number, AnalyzedOcrResult['data']>
 type UseOcrDetectReturn = {
 	detect: (dataUrl: string, page: number) => void
 	dict: Dict
-} & IdleAsyncData<OcrPages>
+	data: OcrPages
+} & Omit<IdleAsyncData<undefined>, 'data'>
 
 export function useOcrDetect(): UseOcrDetectReturn {
-	const [asyncData, setAsyncData] = useState<IdleAsyncData<OcrPages>>({
+	const {ocrData, dict, setOcrPage} = useOcrStore()
+	const [asyncData, setAsyncData] = useState<IdleAsyncData<undefined>>({
 		status: 'idle',
 		data: undefined,
 		error: undefined
 	})
-	const [dict, setDict] = useState<Dict>({})
 
 	const detect = async (dataUrl: string, page: number) => {
 		setAsyncData(getLoadingState())
@@ -52,15 +53,15 @@ export function useOcrDetect(): UseOcrDetectReturn {
 			const ocrData = await detectInfra(dataUrl)
 			const {data, dict: resDict} = await analyzeOcrResult(ocrData)
 
-			setAsyncData(getSuccessState({...asyncData.data, [page]: data}))
-			setDict({...dict, ...resDict})
+			setOcrPage(page, data, resDict)
+			setAsyncData(getSuccessState(undefined))
 		} catch (err) {
 			const error = err instanceof Error ? err : new Error('OCR detection failed')
 			setAsyncData(getErrorState(error))
 		}
 	}
 
-	return {detect, dict, ...asyncData}
+	return {detect, dict, ...asyncData, data: ocrData}
 }
 
 async function analyzeOcrResult(ocrResults: OcrResult[]): Promise<AnalyzedOcrResult> {
