@@ -173,6 +173,27 @@ describe('PdfOcr', () => {
 		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
 	})
 
+	it('should reset page input to 1 when a new file is loaded after navigating to another page', async () => {
+		const user = userEvent.setup()
+		render(<PdfOcr />)
+
+		await waitFor(() => {
+			expect(screen.getByRole('button', {name: 'Upload a PDF'})).toBeInTheDocument()
+		})
+		await uploadPdf(user)
+
+		await user.click(screen.getByRole('button', {name: '>'}))
+		expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(2)
+
+		const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]')!
+		const secondFile = new File(['pdf content 2'], 'second.pdf', {type: 'application/pdf'})
+		await user.upload(fileInput, secondFile)
+
+		await waitFor(() => {
+			expect(screen.getByRole('spinbutton', {name: 'Page'})).toHaveValue(1)
+		})
+	})
+
 	it('should preserve currentPage when navigating away and back to the page', async () => {
 		const user = userEvent.setup()
 		render(<PdfOcr />)

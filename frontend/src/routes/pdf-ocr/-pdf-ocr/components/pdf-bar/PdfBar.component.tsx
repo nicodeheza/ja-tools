@@ -24,28 +24,13 @@ export const PdfBar: FC<Props> = ({
 	ocrReady = false,
 	ocrLoading = false
 }) => {
-	return (
-		<div className={styles.bar}>
-			<FileInput file={file} onFileChange={onFileSelected} accept={'application/pdf'}>
-				Upload a PDF
-			</FileInput>
-			<Button disabled={!file || !ocrReady || ocrLoading} onClick={onOcr}>
-				{ocrLoading ? 'OCR Loading' : 'OCR Document'}
-			</Button>
-			<Pages
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={onPageChange}
-			/>
-		</div>
-	)
-}
-
-type PagesProps = Pick<Props, 'currentPage' | 'totalPages' | 'onPageChange'>
-
-const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
 	const [inputValue, setInputValue] = useState(String(currentPage))
 	const timeout = useRef<NodeJS.Timeout>(null)
+
+	const handleFileSelected = (file: File) => {
+		setInputValue('1')
+		onFileSelected(file)
+	}
 
 	const onPrev = () => {
 		const prevPage = Math.max(currentPage - 1, 1)
@@ -55,9 +40,9 @@ const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
 
 	const onNext = () => {
 		if (!totalPages) return
-		const nextPaga = Math.min(currentPage + 1, totalPages)
-		onPageChange(nextPaga)
-		setInputValue(String(nextPaga))
+		const nextPage = Math.min(currentPage + 1, totalPages)
+		onPageChange(nextPage)
+		setInputValue(String(nextPage))
 	}
 
 	const onPageInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +54,34 @@ const Pages: FC<PagesProps> = ({currentPage, totalPages, onPageChange}) => {
 		}, DEBOUNCE_TIME)
 	}
 
+	return (
+		<div className={styles.bar}>
+			<FileInput file={file} onFileChange={handleFileSelected} accept={'application/pdf'}>
+				Upload a PDF
+			</FileInput>
+			<Button disabled={!file || !ocrReady || ocrLoading} onClick={onOcr}>
+				{ocrLoading ? 'OCR Loading' : 'OCR Document'}
+			</Button>
+			<Pages
+				inputValue={inputValue}
+				totalPages={totalPages}
+				onPrev={onPrev}
+				onNext={onNext}
+				onPageInputChange={onPageInputChange}
+			/>
+		</div>
+	)
+}
+
+interface PagesProps {
+	inputValue: string
+	totalPages: number | undefined
+	onPrev: () => void
+	onNext: () => void
+	onPageInputChange: (e: ChangeEvent<HTMLInputElement>) => void
+}
+
+const Pages: FC<PagesProps> = ({inputValue, totalPages, onPrev, onNext, onPageInputChange}) => {
 	return (
 		<div className={styles.pageSelect}>
 			<button disabled={!totalPages} onClick={onPrev}>
