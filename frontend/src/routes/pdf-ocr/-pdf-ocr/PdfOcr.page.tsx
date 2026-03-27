@@ -10,6 +10,7 @@ import {
 import {useLoadOcr, useOcrDetect} from './services/ocr.service'
 import styles from './PdfOcr.module.css'
 import {useZoom} from './hooks/useZoom.hook'
+import {FuriganaSettings} from '../../../components/settings/FuriganaSettings.component'
 
 export const PdfOcr: FC = () => {
 	const pageRef = useRef<PageApi>(null)
@@ -48,6 +49,7 @@ export const PdfOcr: FC = () => {
 
 	return (
 		<div className={styles.page}>
+			<FuriganaSettings />
 			<PdfBar
 				file={file}
 				onFileSelected={handleFileSelected}

@@ -5,7 +5,7 @@
 
 .disabled {
 	.furigana {
-		opacity: 0;
+		display: none;
 	}
 }
 
