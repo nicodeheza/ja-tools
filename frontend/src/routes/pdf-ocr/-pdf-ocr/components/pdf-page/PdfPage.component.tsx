@@ -4,6 +4,7 @@ import type {AnalyzedOcrResult} from '../../pdfOcr.types'
 import styles from './PdfPage.module.css'
 import type {Dict} from '../../../../../types/analyzedText.types'
 import {AnalyzedText} from '../../../../../components/analyzed-text/AnalyzedText.component'
+import classNames from 'classnames'
 
 interface Props {
 	pageNumber: number
@@ -29,7 +30,7 @@ export const PdfPage = forwardRef(function PdfPage(
 
 	return (
 		<div
-			className={styles.container}
+			className={classNames(status === 'loading' && styles.pageLoading, styles.container)}
 			style={{
 				width: canvasRef.current?.width,
 				height: canvasRef.current?.height,
