@@ -1,15 +1,15 @@
-# Japanese Text Generator
+# ja-tools
 
 ## Overview
 
-This project provides an interface to generate bigener friendly Japanese text, including features like AI-powered content creation, furigana annotation, and dictionary integration. It's designed to be used for educational purposes.
+This project offers different tools to help with the study of the Japanese language, especially with reading. It includes AI-powered text generation, a text analyzer with furigana and dictionary support, and a PDF OCR tool for scanned documents.
 
 ## Features
 
-- **AI-Powered Text Generation:** Utilizes Google's Gemini AI model to generate contextually relevant Japanese text based on user prompts.
-- **Furigana Support:** Automatically adds furigana (reading aids) to kanji, making the text more accessible to learners.
-- **Dictionary Integration:** Includes a dictionary setup for looking up words and their meanings.
-- **Streaming Responses:** Supports streaming responses from the AI model for a more interactive experience.
+- **AI-Powered Text Generation:** Generates beginner-friendly Japanese text based on user prompts, with furigana annotation and streaming responses.
+- **Text Analyzer:** Accepts any Japanese text and returns a tokenized, annotated version. Furigana can be displayed above each word, and clicking on a word shows its dictionary definition (kana, kanji, part-of-speech, and English glosses).
+- **PDF OCR:** Upload a scanned PDF document and run OCR on any selected page. Hovering over detected text regions displays an analyzed overlay with the same furigana and dictionary features as the Text Analyzer.
+- **Furigana Support:** Automatically adds furigana (reading aids) above kanji across all tools.
 
 ## Technologies Used
 
@@ -69,13 +69,19 @@ yarn setup
     ```
 
 3.  **Set up environment variables:**
-
-    - Create a `.env` file in the root directory.
-    - Add your Google Gemini API key:
+    - Create a `.env` file in the root directory and add your AI API key:
 
       ```
       GEMINI_API_KEY=<your_api_key>
       ```
+
+    - Create a `frontend/.env` file and add the backend API base URL used during development:
+
+      ```
+      VITE_DEV_API=<dev_api_base_url>
+      ```
+
+      For example: `VITE_DEV_API=http://localhost:4000/api`
 
 4.  **Build the frontend:**
 
