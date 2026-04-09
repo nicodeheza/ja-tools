@@ -49,7 +49,9 @@ export const PdfOcr: FC = () => {
 
 	return (
 		<div className={styles.page}>
-			<FuriganaSettings />
+			<div className={styles.settings}>
+				<FuriganaSettings />
+			</div>
 			<PdfBar
 				file={file}
 				onFileSelected={handleFileSelected}

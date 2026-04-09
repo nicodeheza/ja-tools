@@ -22,3 +22,11 @@
 		width: 3rem;
 	}
 }
+
+@media (max-width: 450px) {
+	.bar {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 6px;
+	}
+}

@@ -12,3 +12,7 @@
 	overflow: auto;
 	height: 100%;
 }
+
+.settings {
+	padding: 0 24px;
+}
