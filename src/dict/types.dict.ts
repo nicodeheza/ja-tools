@@ -91,7 +91,15 @@ export const jmdictToMecabPOS: Record<string, string[]> = {
 	'v2k-k': ['動詞'],
 	'v2g-k': ['動詞'],
 	'v2t-s': ['動詞'],
-	'v2w-s': ['動詞']
+	'v2w-s': ['動詞'],
+	'v-unspec': ['動詞'],
+	'v2b-s': ['動詞'],
+	'v2d-k': ['動詞'],
+	'v2m-k': ['動詞'],
+	v4n: ['動詞'],
+	v5uru: ['動詞'],
+	sl: ['名詞'],
+	'm-sl': ['名詞']
 }
 type Id = string
 export type jmDictIndex = Record<string, Id[]>

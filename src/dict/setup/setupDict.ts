@@ -104,4 +104,4 @@ async function setupDict(file: string) {
 		})
 }
 
-setupDict('../../../jmDict/jmdict-eng-3.6.1.json').catch(console.error)
+setupDict('../../../jmDict/jmdict-eng-3.6.2.json').catch(console.error)
