@@ -139,6 +139,28 @@ describe('Analyze', () => {
     })
   })
 
+  it('renders line breaks between lines of analyzed text', async () => {
+    const user = userEvent.setup()
+    vi.mocked(analyzeApi.getTextAnalyzeRes).mockResolvedValue({
+      tokens: [
+        { original: '一行目', isWord: true, basicForm: '一行目', mecabPos: '名詞', dictIds: [] },
+        { original: '\n', isWord: false },
+        { original: '二行目', isWord: true, basicForm: '二行目', mecabPos: '名詞', dictIds: [] },
+      ],
+      dict: {},
+    })
+
+    const { container } = render(<Analyze />)
+
+    const textarea = screen.getByRole('textbox')
+    await user.type(textarea, '一行目です{enter}二行目です')
+    await user.click(screen.getByRole('button', { name: /analice/i }))
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('br')).toHaveLength(1)
+    })
+  })
+
   it('displays FuriganaSettings component in success state', async () => {
     const user = userEvent.setup()
     render(<Analyze />)
