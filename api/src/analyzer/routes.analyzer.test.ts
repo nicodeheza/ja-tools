@@ -20,99 +20,92 @@ describe('Analyzer Routes', () => {
   })
   describe('POST /analyze', () => {
     it('should analyze Japanese text and return tokens with dictionary', async () => {
-      vi.mocked(tokenizerModule.tokenize).mockResolvedValue([
-        {
-          id: 0,
-          surface: '私',
-          feature: {
-            pos: '名詞',
-            posSubs: ['代名詞', '一般', undefined],
-            conjugatedType: undefined,
-            conjugatedForm: undefined,
-            basicForm: '私',
-            reading: 'ワタシ',
-            pronunciation: 'ワタシ',
+      const tokensByLine: Record<string, tokenizerModule.MecabToken[]> = {
+        私の名前はジョンです: [
+          {
+            id: 0,
+            surface: '私',
+            feature: {
+              pos: '名詞',
+              posSubs: ['代名詞', '一般', undefined],
+              conjugatedType: undefined,
+              conjugatedForm: undefined,
+              basicForm: '私',
+              reading: 'ワタシ',
+              pronunciation: 'ワタシ',
+            },
           },
-        },
-        {
-          id: 1,
-          surface: 'の',
-          feature: {
-            pos: '助詞',
-            posSubs: ['連体化', undefined, undefined],
-            conjugatedType: undefined,
-            conjugatedForm: undefined,
-            basicForm: 'の',
-            reading: 'ノ',
-            pronunciation: 'ノ',
+          {
+            id: 1,
+            surface: 'の',
+            feature: {
+              pos: '助詞',
+              posSubs: ['連体化', undefined, undefined],
+              conjugatedType: undefined,
+              conjugatedForm: undefined,
+              basicForm: 'の',
+              reading: 'ノ',
+              pronunciation: 'ノ',
+            },
           },
-        },
-        {
-          id: 2,
-          surface: '名前',
-          feature: {
-            pos: '名詞',
-            posSubs: ['一般', undefined, undefined],
-            conjugatedType: undefined,
-            conjugatedForm: undefined,
-            basicForm: '名前',
-            reading: 'ナマエ',
-            pronunciation: 'ナマエ',
+          {
+            id: 2,
+            surface: '名前',
+            feature: {
+              pos: '名詞',
+              posSubs: ['一般', undefined, undefined],
+              conjugatedType: undefined,
+              conjugatedForm: undefined,
+              basicForm: '名前',
+              reading: 'ナマエ',
+              pronunciation: 'ナマエ',
+            },
           },
-        },
-        {
-          id: 3,
-          surface: 'は',
-          feature: {
-            pos: '助詞',
-            posSubs: ['係助詞', undefined, undefined],
-            conjugatedType: undefined,
-            conjugatedForm: undefined,
-            basicForm: 'は',
-            reading: 'ハ',
-            pronunciation: 'ワ',
+          {
+            id: 3,
+            surface: 'は',
+            feature: {
+              pos: '助詞',
+              posSubs: ['係助詞', undefined, undefined],
+              conjugatedType: undefined,
+              conjugatedForm: undefined,
+              basicForm: 'は',
+              reading: 'ハ',
+              pronunciation: 'ワ',
+            },
           },
-        },
-        {
-          id: 4,
-          surface: 'ジョン',
-          feature: {
-            pos: '名詞',
-            posSubs: ['固有名詞', '人名', '名'],
-            conjugatedType: undefined,
-            conjugatedForm: undefined,
-            basicForm: 'ジョン',
-            reading: 'ジョン',
-            pronunciation: 'ジョン',
+          {
+            id: 4,
+            surface: 'ジョン',
+            feature: {
+              pos: '名詞',
+              posSubs: ['固有名詞', '人名', '名'],
+              conjugatedType: undefined,
+              conjugatedForm: undefined,
+              basicForm: 'ジョン',
+              reading: 'ジョン',
+              pronunciation: 'ジョン',
+            },
           },
-        },
-        {
-          id: 5,
-          surface: 'です',
-          feature: {
-            pos: '助動詞',
-            posSubs: [undefined, undefined, undefined],
-            conjugatedType: '特殊・デス',
-            conjugatedForm: '基本形',
-            basicForm: 'です',
-            reading: 'デス',
-            pronunciation: 'デス',
+          {
+            id: 5,
+            surface: 'です',
+            feature: {
+              pos: '助動詞',
+              posSubs: [undefined, undefined, undefined],
+              conjugatedType: '特殊・デス',
+              conjugatedForm: '基本形',
+              basicForm: 'です',
+              reading: 'デス',
+              pronunciation: 'デス',
+            },
           },
-        },
-        {
-          id: 6,
-          surface: '\n',
-          feature: {
-            pos: '記号',
-            posSubs: ['空白', undefined, undefined],
-            conjugatedType: undefined,
-            conjugatedForm: undefined,
-            basicForm: undefined,
-            reading: undefined,
-            pronunciation: undefined,
-          },
-        },
-      ])
+        ],
+      }
+
+      vi.mocked(tokenizerModule.tokenize).mockImplementation(
+        async (text: string) => tokensByLine[text] ?? []
+      )
 
       vi.mocked(dictModule.getByKanaAndMecabPos).mockImplementation(
         async (kana: string, mecabPos: string) => {
@@ -333,6 +326,115 @@ describe('Analyzer Routes', () => {
           ],
         },
       })
+    })
+
+    it('should preserve line breaks as non-word tokens for multi-line text', async () => {
+      const tokensByLine: Record<string, tokenizerModule.MecabToken[]> = {
+        あさ: [
+          {
+            id: 0,
+            surface: 'あさ',
+            feature: { pos: '名詞', posSubs: [undefined, undefined, undefined] },
+          },
+        ],
+        ばん: [
+          {
+            id: 0,
+            surface: 'ばん',
+            feature: { pos: '名詞', posSubs: [undefined, undefined, undefined] },
+          },
+        ],
+      }
+      vi.mocked(tokenizerModule.tokenize).mockImplementation(
+        async (text: string) => tokensByLine[text] ?? []
+      )
+      vi.mocked(dictModule.getByKanjiAndMecabPos).mockResolvedValue([])
+      vi.mocked(dictModule.getByKanaAndMecabPos).mockResolvedValue([])
+
+      const response = await request(app)
+        .post('/')
+        .send({ text: 'あさ\nばん' })
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toEqual(200)
+      expect(response.body.tokens).toEqual([
+        { isWord: true, original: 'あさ', mecabPos: '名詞', basicForm: '', dictIds: [] },
+        { isWord: false, original: '\n' },
+        { isWord: true, original: 'ばん', mecabPos: '名詞', basicForm: '', dictIds: [] },
+      ])
+    })
+
+    it('should preserve blank lines as consecutive newline tokens', async () => {
+      const tokensByLine: Record<string, tokenizerModule.MecabToken[]> = {
+        あさ: [
+          {
+            id: 0,
+            surface: 'あさ',
+            feature: { pos: '名詞', posSubs: [undefined, undefined, undefined] },
+          },
+        ],
+        ばん: [
+          {
+            id: 0,
+            surface: 'ばん',
+            feature: { pos: '名詞', posSubs: [undefined, undefined, undefined] },
+          },
+        ],
+      }
+      vi.mocked(tokenizerModule.tokenize).mockImplementation(
+        async (text: string) => tokensByLine[text] ?? []
+      )
+      vi.mocked(dictModule.getByKanjiAndMecabPos).mockResolvedValue([])
+      vi.mocked(dictModule.getByKanaAndMecabPos).mockResolvedValue([])
+
+      const response = await request(app)
+        .post('/')
+        .send({ text: 'あさ\n\nばん' })
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toEqual(200)
+      expect(response.body.tokens).toEqual([
+        { isWord: true, original: 'あさ', mecabPos: '名詞', basicForm: '', dictIds: [] },
+        { isWord: false, original: '\n' },
+        { isWord: false, original: '\n' },
+        { isWord: true, original: 'ばん', mecabPos: '名詞', basicForm: '', dictIds: [] },
+      ])
+    })
+
+    it('should normalize CRLF line breaks to a single newline token', async () => {
+      const tokensByLine: Record<string, tokenizerModule.MecabToken[]> = {
+        あさ: [
+          {
+            id: 0,
+            surface: 'あさ',
+            feature: { pos: '名詞', posSubs: [undefined, undefined, undefined] },
+          },
+        ],
+        ばん: [
+          {
+            id: 0,
+            surface: 'ばん',
+            feature: { pos: '名詞', posSubs: [undefined, undefined, undefined] },
+          },
+        ],
+      }
+      vi.mocked(tokenizerModule.tokenize).mockImplementation(
+        async (text: string) => tokensByLine[text] ?? []
+      )
+      vi.mocked(dictModule.getByKanjiAndMecabPos).mockResolvedValue([])
+      vi.mocked(dictModule.getByKanaAndMecabPos).mockResolvedValue([])
+
+      const response = await request(app)
+        .post('/')
+        .send({ text: 'あさ\r\nばん' })
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toEqual(200)
+      expect(response.body.tokens).toEqual([
+        { isWord: true, original: 'あさ', mecabPos: '名詞', basicForm: '', dictIds: [] },
+        { isWord: false, original: '\n' },
+        { isWord: true, original: 'ばん', mecabPos: '名詞', basicForm: '', dictIds: [] },
+      ])
     })
 
     it('should return 400 error when text field is missing', async () => {

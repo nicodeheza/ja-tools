@@ -5,8 +5,20 @@ import { dictLookup } from './infrastructure/dict.analyzer.js'
 
 const noWord = new Set(['記号', 'BOS/EOS'])
 
+const newlineMarker: TokenizerToken = { surface: '\n', feature: { pos: '記号' } }
+
+async function tokenizeLinesWithBreaks(text: string): Promise<TokenizerToken[]> {
+  const lines = text.split(/\r\n|\n|\r/)
+  const perLine = await Promise.all(
+    lines.map((line) =>
+      line === '' ? Promise.resolve([] as TokenizerToken[]) : tokenizeText(line)
+    )
+  )
+  return perLine.flatMap((tokens, i) => (i === 0 ? tokens : [newlineMarker, ...tokens]))
+}
+
 export async function analyzeText(text: string): Promise<AnalyzeRes> {
-  const result: TokenizerToken[] = await tokenizeText(text)
+  const result = await tokenizeLinesWithBreaks(text)
 
   const dictResults = await getDictResult(result)
 

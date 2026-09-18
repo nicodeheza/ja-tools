@@ -22,6 +22,7 @@ interface NoWordTokenComponentProps {
   token: NoWordToken
 }
 const NoWordTokenComponent: FC<NoWordTokenComponentProps> = ({ token }) => {
+  if (token.original === '\n') return <br />
   if (token.original === 'BOS' || token.original === 'EOS') return ''
   return token.original
 }
