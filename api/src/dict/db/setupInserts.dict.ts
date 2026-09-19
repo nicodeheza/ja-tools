@@ -254,7 +254,7 @@ function insertSenseMecab(senseId: number, mecabIds: number[]) {
   )
 }
 
-function getMecabPosFormTags(tags: string[], mecabPosMap: Record<string, number>): number[] {
+export function getMecabPosFormTags(tags: string[], mecabPosMap: Record<string, number>): number[] {
   const posList = tags.map((p) => jmdictToMecabPOS[p]).flat()
   const noDuplicateList = Array.from(new Set(posList))
   return noDuplicateList.map((p) => mecabPosMap[p])

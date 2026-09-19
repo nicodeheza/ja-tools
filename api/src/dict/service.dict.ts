@@ -31,7 +31,7 @@ function mapDbRes(dbRes: DbWord[]): Word[] {
   map = dbRes.reduce((acc, r) => {
     if (acc[r.id]) {
       acc[r.id].kana.add(r.kana)
-      acc[r.id].kanji.add(r.kanji)
+      if (r.kanji != null) acc[r.id].kanji.add(r.kanji)
       acc[r.id].mecab.add(r.mecab)
 
       if (acc[r.id].sense[r.senseId]) {
@@ -49,7 +49,7 @@ function mapDbRes(dbRes: DbWord[]): Word[] {
       [r.id]: {
         id: r.id,
         kana: new Set<string>().add(r.kana),
-        kanji: new Set<string>().add(r.kanji),
+        kanji: r.kanji != null ? new Set<string>().add(r.kanji) : new Set<string>(),
         mecab: new Set<string>().add(r.mecab),
         sense: getNewReducerSense(r),
       },
