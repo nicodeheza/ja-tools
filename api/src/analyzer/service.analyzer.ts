@@ -5,6 +5,17 @@ import { dictLookup } from './infrastructure/dict.analyzer.js'
 
 const noWord = new Set(['記号', 'BOS/EOS'])
 
+// MeCab tags these function words unreliably (e.g. あの as both フィラー filler and
+// 連体詞 "that"). Query all their relevant POS and merge the senses so the tooltip
+// always shows the correct definitions regardless of how MeCab tags the token.
+//
+// The merge is done per word with a small parallel lookup (see getDictWords). If this
+// list grows significantly, refactor instead to support the multi-POS search at the
+// query level (e.g. `mecab_pos.text IN (...)`) so a single query returns the union.
+const ambiguousPosWords: Record<string, string[]> = {
+  あの: ['連体詞', 'フィラー', '感動詞'],
+}
+
 const newlineMarker: TokenizerToken = { surface: '\n', feature: { pos: '記号' } }
 
 async function tokenizeLinesWithBreaks(text: string): Promise<TokenizerToken[]> {
@@ -75,7 +86,10 @@ function mecabToFurigana(original: string, katakana: string): string | undefined
 }
 
 async function getDictWords(word: string, pos: string) {
-  const res = await dictLookup(word, pos)
+  const poss = ambiguousPosWords[word] ?? [pos]
+
+  const settled = await Promise.all(poss.map((p) => dictLookup(word, p)))
+  const res = Array.from(new Map(settled.flat().map((r) => [r.id, r])).values())
 
   const ids = res.map((r) => r.id)
 

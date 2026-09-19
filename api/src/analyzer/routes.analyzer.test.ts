@@ -328,6 +328,67 @@ describe('Analyzer Routes', () => {
       })
     })
 
+    it('should merge all senses of あの when MeCab tags it as filler', async () => {
+      vi.mocked(tokenizerModule.tokenize).mockResolvedValue([
+        {
+          id: 0,
+          surface: 'あの',
+          feature: {
+            pos: 'フィラー',
+            posSubs: [undefined, undefined, undefined],
+            basicForm: 'あの',
+            reading: 'アノ',
+            pronunciation: 'アノ',
+          },
+        },
+      ])
+
+      vi.mocked(dictModule.getByKanjiAndMecabPos).mockResolvedValue([])
+      vi.mocked(dictModule.getByKanaAndMecabPos).mockImplementation(async (kana, mecabPos) => {
+        if (kana === 'あの' && mecabPos === '連体詞') {
+          return [
+            {
+              id: '69',
+              kana: ['あの'],
+              kanji: ['彼の'],
+              mecabPos: ['連体詞'],
+              sense: [{ gloss: ['that'], pos: ['adj-pn'] }],
+            },
+          ]
+        }
+        if (kana === 'あの' && mecabPos === 'フィラー') {
+          return [
+            {
+              id: '88',
+              kana: ['あの'],
+              kanji: [],
+              mecabPos: ['フィラー'],
+              sense: [{ gloss: ['um'], pos: ['int'] }],
+            },
+          ]
+        }
+        return []
+      })
+
+      const response = await request(app)
+        .post('/')
+        .send({ text: 'あの' })
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toEqual(200)
+      expect(response.body.tokens).toEqual([
+        {
+          isWord: true,
+          original: 'あの',
+          mecabPos: 'フィラー',
+          basicForm: 'あの',
+          dictIds: ['69', '88'],
+        },
+      ])
+      expect(response.body.dict).toHaveProperty('69')
+      expect(response.body.dict).toHaveProperty('88')
+    })
+
     it('should preserve line breaks as non-word tokens for multi-line text', async () => {
       const tokensByLine: Record<string, tokenizerModule.MecabToken[]> = {
         あさ: [
