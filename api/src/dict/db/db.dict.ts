@@ -13,10 +13,11 @@ export class DictDb {
   private static db: Database.Database | undefined
   private static drizzleDB: ReturnType<typeof drizzle<typeof schema>> | undefined
 
-  static open(readonly?: boolean) {
+  static open(readonly?: boolean, path?: string) {
     if (DictDb.db) return
-    DictDb.db = new Database(DB_PATH, readonly ? { readonly: true } : undefined)
-    if (!readonly) DictDb.db.pragma('journal_mode = WAL')
+    const dbPath = path ?? DB_PATH
+    DictDb.db = new Database(dbPath, readonly ? { readonly: true } : undefined)
+    if (!readonly && dbPath !== ':memory:') DictDb.db.pragma('journal_mode = WAL')
     if (!DictDb.drizzleDB) DictDb.drizzleDB = drizzle({ client: DictDb.db })
   }
 

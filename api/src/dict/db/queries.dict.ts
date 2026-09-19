@@ -17,7 +17,7 @@ const db = () => DictDb.getDb()
 export interface DbWord {
   id: number
   kana: string
-  kanji: string
+  kanji: string | null
   senseId: number
   gloss: string
   pos: string
@@ -39,7 +39,7 @@ export async function getByKanaAndMecabPosQuery(
       mecab: mecabPos.text,
     })
     .from(words)
-    .innerJoin(kanjis, eq(kanjis.wordId, words.id))
+    .leftJoin(kanjis, eq(kanjis.wordId, words.id))
     .innerJoin(kanas, eq(kanas.wordId, words.id))
     .innerJoin(sense, eq(sense.wordId, words.id))
     .innerJoin(glosses, eq(glosses.senseId, sense.id))
