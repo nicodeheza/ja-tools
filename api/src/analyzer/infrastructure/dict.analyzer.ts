@@ -5,13 +5,17 @@ import { haveKanji } from '../utils.analyzer.js'
 
 export const dictCache = new Cache<DictWord[]>(100)
 
-export async function dictLookup(text: string, mecabPos: string): Promise<DictWord[]> {
-  const key = `${text}-${mecabPos}`
+export async function dictLookup(
+  text: string,
+  mecabPos: string,
+  reading?: string
+): Promise<DictWord[]> {
+  const key = `${text}-${mecabPos}-${reading ?? ''}`
   const cacheRes = dictCache.get(key)
   if (cacheRes) return cacheRes
 
   if (haveKanji(text)) {
-    const res = await getByKanjiAndMecabPos(text, mecabPos)
+    const res = await getByKanjiAndMecabPos(text, mecabPos, reading)
     dictCache.add(key, res)
     return res
   }

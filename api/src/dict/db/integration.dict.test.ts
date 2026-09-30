@@ -34,4 +34,12 @@ describe.skipIf(!existsSync(DB_PATH))('dictionary integration (real dictDb)', ()
     const res = await lookup(word, pos)
     expect(res.length, `no dictionary entry for ${word} (${pos})`).toBeGreaterThanOrEqual(1)
   })
+
+  it('道 (みち) does not include the どう reading', async () => {
+    const res = await getByKanjiAndMecabPos('道', '名詞', 'みち')
+    expect(res.length, 'no dictionary entry for 道 (みち)').toBeGreaterThanOrEqual(1)
+    const kanas = res.flatMap((r) => r.kana)
+    expect(kanas).toContain('みち')
+    expect(kanas).not.toContain('どう')
+  })
 })

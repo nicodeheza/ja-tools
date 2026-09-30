@@ -202,56 +202,59 @@ describe('Generator Routes', () => {
         }
       )
 
-      vi.mocked(dictDbQueriesModule.getByKanjiAndMecabPosQuery).mockImplementation(
-        async (kanji: string, mecabPosText: string) => {
-          // 私
-          if (kanji === '私' && mecabPosText === '名詞') {
-            return [
-              {
-                id: 1000,
-                kana: 'わたし',
-                kanji: '私',
-                senseId: 1,
-                gloss: 'I',
-                pos: 'pn',
-                mecab: '名詞',
-              },
-              {
-                id: 1000,
-                kana: 'わたし',
-                kanji: '私',
-                senseId: 1,
-                gloss: 'me',
-                pos: 'pn',
-                mecab: '名詞',
-              },
-            ]
-          }
-          // 名前
-          if (kanji === '名前' && mecabPosText === '名詞') {
-            return [
-              {
-                id: 1002,
-                kana: 'なまえ',
-                kanji: '名前',
-                senseId: 1,
-                gloss: 'name',
-                pos: 'n',
-                mecab: '名詞',
-              },
-              {
-                id: 1002,
-                kana: 'なまえ',
-                kanji: '名前',
-                senseId: 1,
-                gloss: 'full name',
-                pos: 'n',
-                mecab: '名詞',
-              },
-            ]
-          }
-          return []
+      const mockKanjiQuery = async (kanji: string, mecabPosText: string) => {
+        // 私
+        if (kanji === '私' && mecabPosText === '名詞') {
+          return [
+            {
+              id: 1000,
+              kana: 'わたし',
+              kanji: '私',
+              senseId: 1,
+              gloss: 'I',
+              pos: 'pn',
+              mecab: '名詞',
+            },
+            {
+              id: 1000,
+              kana: 'わたし',
+              kanji: '私',
+              senseId: 1,
+              gloss: 'me',
+              pos: 'pn',
+              mecab: '名詞',
+            },
+          ]
         }
+        // 名前
+        if (kanji === '名前' && mecabPosText === '名詞') {
+          return [
+            {
+              id: 1002,
+              kana: 'なまえ',
+              kanji: '名前',
+              senseId: 1,
+              gloss: 'name',
+              pos: 'n',
+              mecab: '名詞',
+            },
+            {
+              id: 1002,
+              kana: 'なまえ',
+              kanji: '名前',
+              senseId: 1,
+              gloss: 'full name',
+              pos: 'n',
+              mecab: '名詞',
+            },
+          ]
+        }
+        return []
+      }
+
+      vi.mocked(dictDbQueriesModule.getByKanjiAndMecabPosQuery).mockImplementation(mockKanjiQuery)
+      vi.mocked(dictDbQueriesModule.getByKanjiReadingAndMecabPosQuery).mockImplementation(
+        mockKanjiQuery
       )
 
       const response = await request(app)

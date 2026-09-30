@@ -85,10 +85,10 @@ function mecabToFurigana(original: string, katakana: string): string | undefined
   return getFurigana(original, reading)
 }
 
-async function getDictWords(word: string, pos: string) {
+async function getDictWords(word: string, pos: string, reading?: string) {
   const poss = ambiguousPosWords[word] ?? [pos]
 
-  const settled = await Promise.all(poss.map((p) => dictLookup(word, p)))
+  const settled = await Promise.all(poss.map((p) => dictLookup(word, p, reading)))
   const res = Array.from(new Map(settled.flat().map((r) => [r.id, r])).values())
 
   const ids = res.map((r) => r.id)
@@ -104,7 +104,7 @@ async function getDictWords(word: string, pos: string) {
   return { ids, dict }
 }
 
-type WordEntry = { word: string; pos: string }
+type WordEntry = { word: string; pos: string; reading?: string }
 async function getDictResult(
   mecabTokens: TokenizerToken[]
 ): Promise<{ ids: string[]; dict: Dict }[]> {
@@ -116,10 +116,15 @@ async function getDictResult(
       wordEntries.push({
         word: mecabToken.feature.basicForm ?? mecabToken.surface,
         pos,
+        reading: mecabToken.feature.reading
+          ? katakaToHiragana(mecabToken.feature.reading)
+          : undefined,
       })
     }
   })
 
-  const dictResults = await Promise.allSettled(wordEntries.map((e) => getDictWords(e.word, e.pos)))
+  const dictResults = await Promise.allSettled(
+    wordEntries.map((e) => getDictWords(e.word, e.pos, e.reading))
+  )
   return dictResults.map((r) => (r.status === 'fulfilled' ? r.value : { ids: [], dict: {} }))
 }
