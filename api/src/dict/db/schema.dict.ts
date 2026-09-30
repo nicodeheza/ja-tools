@@ -89,14 +89,18 @@ export const senseRelations = relations(sense, ({ many, one }) => ({
   mecabPos: many(senseToMecabPos),
 }))
 
-export const senseToKana = table('sense_kana', {
-  senseId: int('sense_id')
-    .notNull()
-    .references(() => sense.id),
-  kanaId: int('kana_id')
-    .notNull()
-    .references(() => kanas.id),
-})
+export const senseToKana = table(
+  'sense_kana',
+  {
+    senseId: int('sense_id')
+      .notNull()
+      .references(() => sense.id),
+    kanaId: int('kana_id')
+      .notNull()
+      .references(() => kanas.id),
+  },
+  (t) => [index('sense_kana_sense_id_kana_id_idx').on(t.senseId, t.kanaId)]
+)
 export const senseToKanaRelations = relations(senseToKana, ({ one }) => ({
   sense: one(sense, {
     fields: [senseToKana.senseId],
@@ -108,14 +112,18 @@ export const senseToKanaRelations = relations(senseToKana, ({ one }) => ({
   }),
 }))
 
-export const senseToKanji = table('sense_kanji', {
-  senseId: int('sense_id')
-    .notNull()
-    .references(() => sense.id),
-  kanjiId: int('kanji_id')
-    .notNull()
-    .references(() => kanjis.id),
-})
+export const senseToKanji = table(
+  'sense_kanji',
+  {
+    senseId: int('sense_id')
+      .notNull()
+      .references(() => sense.id),
+    kanjiId: int('kanji_id')
+      .notNull()
+      .references(() => kanjis.id),
+  },
+  (t) => [index('sense_kanji_sense_id_kanji_id_idx').on(t.senseId, t.kanjiId)]
+)
 export const senseToKanjiRelations = relations(senseToKanji, ({ one }) => ({
   sense: one(sense, {
     fields: [senseToKanji.senseId],
