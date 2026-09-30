@@ -1,4 +1,9 @@
-import { DbWord, getByKanaAndMecabPosQuery, getByKanjiAndMecabPosQuery } from './db/queries.dict.js'
+import {
+  DbWord,
+  getByKanaAndMecabPosQuery,
+  getByKanjiAndMecabPosQuery,
+  getByKanjiReadingAndMecabPosQuery,
+} from './db/queries.dict.js'
 import { Word } from './types.dict.js'
 
 interface WordReducerMap {
@@ -68,8 +73,17 @@ function mapDbRes(dbRes: DbWord[]): Word[] {
   }))
 }
 
-export async function getByKanjiAndMecabPos(kanji: string, mecabPos: string): Promise<Word[]> {
-  const queryRes = await getByKanjiAndMecabPosQuery(kanji, mecabPos)
+export async function getByKanjiAndMecabPos(
+  kanji: string,
+  mecabPos: string,
+  reading?: string
+): Promise<Word[]> {
+  let queryRes = reading
+    ? await getByKanjiReadingAndMecabPosQuery(kanji, reading, mecabPos)
+    : await getByKanjiAndMecabPosQuery(kanji, mecabPos)
+  if (reading && queryRes.length === 0) {
+    queryRes = await getByKanjiAndMecabPosQuery(kanji, mecabPos)
+  }
   return mapDbRes(queryRes)
 }
 
