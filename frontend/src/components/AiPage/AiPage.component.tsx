@@ -59,8 +59,9 @@ export const AiPage: FC<Props> = ({ toolDescription, toolTitle, children }) => {
             server can read it — we never store or log it anywhere.
           </p>
           <p>
-            <strong>Cost:</strong> We only use free Google AI models, so you won't be charged.
-            Google applies usage limits to free keys, but for normal use you won't hit them.
+            <strong>Cost:</strong> We only use Google AI models that offer a free tier, so you won't
+            be charged. Google applies usage limits to free keys, but for normal use you won't hit
+            them.
           </p>
         </div>
 
