@@ -32,7 +32,7 @@ This project offers different tools to help with the study of the Japanese langu
 
 ## Use of AI Features
 
-This application uses a **bring your own API key** model. The AI features are powered by **Google Gemini** (specifically Gemma 4), a free model with generous usage limits, so you can use the app without paying for API credits.
+This application uses a **bring your own API key** model. The AI features are powered by **Google Gemini** (`gemini-3.5-flash`), which offers a free tier, so you can use the app without paying for API credits.
 
 ### Getting a Gemini API Key
 

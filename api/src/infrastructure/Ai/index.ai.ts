@@ -7,8 +7,7 @@ interface RespondArgs {
   systemInstructions?: string
 }
 
-const MODELS_WITH_NOT_SYSTEM_INSTRUCTIONS = new Set(['gemma-3-27b-it'])
-const DEFAULT_MODEL = 'gemma-4-31b-it'
+const DEFAULT_MODEL = 'gemini-3.5-flash'
 
 class Ai {
   private models: Models
@@ -18,31 +17,13 @@ class Ai {
     this.models = client.models
   }
 
-  private supportSystemInstructions(model: string): boolean {
-    return !MODELS_WITH_NOT_SYSTEM_INSTRUCTIONS.has(model)
-  }
-
-  private concatenatePromptWithSystem(prompt: string, system?: string): string {
-    if (!system) return prompt
-
-    return `${system}
-		This is the user prompt:
-		${prompt} 
-		`
-  }
-
   private getParameters(args: RespondArgs): GenerateContentParameters {
-    const model = args.model ?? DEFAULT_MODEL
-    const supportSystemInstructions = this.supportSystemInstructions(model)
-    const systemInstruction = supportSystemInstructions ? args.systemInstructions : undefined
     return {
-      model,
-      contents: supportSystemInstructions
-        ? args.prompt
-        : this.concatenatePromptWithSystem(args.prompt, args.systemInstructions),
+      model: args.model ?? DEFAULT_MODEL,
+      contents: args.prompt,
       config: {
         temperature: args.temperature,
-        systemInstruction,
+        systemInstruction: args.systemInstructions,
       },
     }
   }
@@ -78,6 +59,19 @@ function isRateLimitError(error: unknown): boolean {
   if ('message' in error && typeof error.message === 'string' && error.message.includes('429'))
     return true
   return false
+}
+
+export function describeAiError(error: unknown): string {
+  if (error && typeof error === 'object') {
+    const e = error as { status?: number; message?: string }
+    if (e.status === 429) {
+      return 'Rate limit reached — wait a moment and try again'
+    }
+    const status = e.status ? ` (${e.status})` : ''
+    const message = typeof e.message === 'string' ? e.message : JSON.stringify(error)
+    return `${status} ${message}`.trim().slice(0, 500)
+  }
+  return String(error)
 }
 
 export function aiDirectResponse(args: RespondArgs, apiKey: string) {
