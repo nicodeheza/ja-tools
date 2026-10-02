@@ -53,7 +53,8 @@ export function useGenerateText() {
       if (isEventError(data)) {
         event.close()
         setConnectionState('disconnected')
-        setError('Text generation has failed')
+        const reason = typeof data.error === 'string' && data.error ? data.error : undefined
+        setError(reason ? `Text generation has failed: ${reason}` : 'Text generation has failed')
         console.error('SSE error:', data.error)
         return
       }
