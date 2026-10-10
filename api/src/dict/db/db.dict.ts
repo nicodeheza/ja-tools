@@ -16,8 +16,13 @@ export class DictDb {
   static open(readonly?: boolean, path?: string) {
     if (DictDb.db) return
     const dbPath = path ?? DB_PATH
-    DictDb.db = new Database(dbPath, readonly ? { readonly: true } : undefined)
-    if (!readonly && dbPath !== ':memory:') DictDb.db.pragma('journal_mode = WAL')
+    DictDb.db = new Database(dbPath, { ...(readonly ? { readonly: true } : {}), timeout: 60000 })
+    if (!readonly && dbPath !== ':memory:') {
+      DictDb.db.pragma('journal_mode = WAL')
+      DictDb.db.pragma('synchronous = OFF')
+      DictDb.db.pragma('wal_autocheckpoint = 0')
+      DictDb.db.pragma('cache_size = -65536')
+    }
     if (!DictDb.drizzleDB) DictDb.drizzleDB = drizzle({ client: DictDb.db })
   }
 

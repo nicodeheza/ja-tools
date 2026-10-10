@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { DictDb } from './db.dict.js'
 import {
   glosses,
@@ -21,7 +21,9 @@ export interface DbWord {
   kana: string
   kanji: string | null
   senseId: number
+  senseNumber: number
   gloss: string
+  glossNumber: number
   pos: string
   mecab: string
 }
@@ -31,7 +33,9 @@ const wordSelect = {
   kana: kanas.text,
   kanji: kanjis.text,
   senseId: sense.id,
+  senseNumber: sense.senseNumber,
   gloss: glosses.text,
+  glossNumber: glosses.glossNumber,
   pos: tags.text,
   mecab: mecabPos.text,
 }
@@ -52,6 +56,13 @@ export async function getByKanaAndMecabPosQuery(
     .innerJoin(senseToMecabPos, eq(sense.id, senseToMecabPos.senseId))
     .innerJoin(mecabPos, eq(mecabPos.id, senseToMecabPos.mecabPosId))
     .where(and(eq(kanas.text, kana), eq(mecabPos.text, mecabPosText)))
+    .orderBy(
+      sql`${words.frequency} IS NULL`,
+      words.frequency,
+      sql`${words.common} DESC`,
+      sense.senseNumber,
+      glosses.glossNumber
+    )
 }
 
 export async function getByKanjiAndMecabPosQuery(
@@ -70,6 +81,13 @@ export async function getByKanjiAndMecabPosQuery(
     .innerJoin(senseToMecabPos, eq(sense.id, senseToMecabPos.senseId))
     .innerJoin(mecabPos, eq(mecabPos.id, senseToMecabPos.mecabPosId))
     .where(and(eq(kanjis.text, kanji), eq(mecabPos.text, mecabPosText)))
+    .orderBy(
+      sql`${words.frequency} IS NULL`,
+      words.frequency,
+      sql`${words.common} DESC`,
+      sense.senseNumber,
+      glosses.glossNumber
+    )
 }
 
 export async function getByKanjiReadingAndMecabPosQuery(
@@ -97,4 +115,11 @@ export async function getByKanjiReadingAndMecabPosQuery(
     .innerJoin(senseToMecabPos, eq(sense.id, senseToMecabPos.senseId))
     .innerJoin(mecabPos, eq(mecabPos.id, senseToMecabPos.mecabPosId))
     .where(and(eq(kanjis.text, kanji), eq(mecabPos.text, mecabPosText), eq(kanas.text, reading)))
+    .orderBy(
+      sql`${words.frequency} IS NULL`,
+      words.frequency,
+      sql`${words.common} DESC`,
+      sense.senseNumber,
+      glosses.glossNumber
+    )
 }
