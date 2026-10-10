@@ -53,12 +53,6 @@ importers:
       '@eslint/js':
         specifier: ^9.25.0
         version: 9.39.4
-      '@scriptin/jmdict-simplified-loader':
-        specifier: ^3.6.1
-        version: 3.6.1
-      '@scriptin/jmdict-simplified-types':
-        specifier: ^3.6.1
-        version: 3.6.1
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -95,6 +89,9 @@ importers:
       prettier:
         specifier: ^3.5.3
         version: 3.8.3
+      saxes:
+        specifier: ^6.0.0
+        version: 6.0.0
       supertest:
         specifier: ^7.1.4
         version: 7.2.2
@@ -1630,12 +1627,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@scriptin/jmdict-simplified-loader@3.6.1':
-    resolution: {integrity: sha512-JoQkO+Ydy27FywbL6KjxoaEoW+U3r3+VUZk1aetzRPJ9vHg6rfMFrF9HOQvEYc59+8H/Ukej+lTgBasNgkO72g==}
-
-  '@scriptin/jmdict-simplified-types@3.6.1':
-    resolution: {integrity: sha512-vb0c/sq2eBETJgDxRmsSq5Ym0s6axt7MdPlQKvjA1+eVnk7fUB+OD/J0Xckek2QNqNgsiB37kFGuJDnCwFBunQ==}
-
   '@smithy/core@3.24.6':
     resolution: {integrity: sha512-wBXDRup6UU97VKyaiRo8AssnfStPtG0oAAfpq/bC0a1YYau8pM86YB4kM6ccoVi1mS8l/UHbn9oDM+7uozr/ug==}
     engines: {node: '>=18.0.0'}
@@ -2599,6 +2590,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -3512,12 +3504,6 @@ packages:
 
   stream-browserify@3.0.0:
     resolution: {integrity: sha512-H73RAHsVBapbim0tU2JwwOiXUj+fikfiaoYAKHF3VJfA0pe2BCzkhAHBlLG6REzE+2WNZcxOXjK7lkso+9euLA==}
-
-  stream-chain@2.2.5:
-    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
-
-  stream-json@1.9.1:
-    resolution: {integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==}
 
   string_decoder@1.3.0:
     resolution: {integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==}
@@ -5099,13 +5085,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.61.1':
     optional: true
-
-  '@scriptin/jmdict-simplified-loader@3.6.1':
-    dependencies:
-      '@scriptin/jmdict-simplified-types': 3.6.1
-      stream-json: 1.9.1
-
-  '@scriptin/jmdict-simplified-types@3.6.1': {}
 
   '@smithy/core@3.24.6':
     dependencies:
@@ -7078,12 +7057,6 @@ snapshots:
     dependencies:
       inherits: 2.0.4
       readable-stream: 3.6.2
-
-  stream-chain@2.2.5: {}
-
-  stream-json@1.9.1:
-    dependencies:
-      stream-chain: 2.2.5
 
   string_decoder@1.3.0:
     dependencies:

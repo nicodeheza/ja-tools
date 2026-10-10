@@ -57,9 +57,9 @@ For other platforms, see the [MeCab installation guide](https://taku910.github.i
 
 Also, you need to set up the dictionary
 
-1. Create a directory in the root called `jmDict`
-2. Add a Japanese JSON dictionary from [jmdict-simplified](https://github.com/scriptin/jmdict-simplified/releases)
-3. Run the script to generate the dictionary database
+1. Create a directory in `api` called `jmDict`
+2. Download the raw JMdict XML (`JMdict_e.gz`) from the [JMdict-EDICT Dictionary Project](https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html) and extract it to `api/jmDict/JMdict_e`
+3. Run the scripts to generate the dictionary database
 
 ```bash
 pnpm --filter api dict:push
