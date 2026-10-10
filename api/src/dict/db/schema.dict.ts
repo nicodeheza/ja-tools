@@ -3,6 +3,8 @@ import { index, int, primaryKey, sqliteTable as table, text } from 'drizzle-orm/
 
 export const words = table('words', {
   id: int().primaryKey({ autoIncrement: true }),
+  common: int({ mode: 'boolean' }).notNull(),
+  frequency: int('frequency'),
 })
 export const wordsRelations = relations(words, ({ many }) => ({
   kanjis: many(kanjis),
@@ -74,6 +76,7 @@ export const sense = table(
   {
     id: int().primaryKey({ autoIncrement: true }),
     wordId: int('word_id').notNull(),
+    senseNumber: int('sense_number').notNull(),
   },
   (t) => [index('sense_word_id_idx').on(t.wordId)]
 )
@@ -141,6 +144,7 @@ export const glosses = table(
     id: int().primaryKey({ autoIncrement: true }),
     text: text().notNull(),
     senseId: int('sense_id').notNull(),
+    glossNumber: int('gloss_number').notNull(),
   },
   (t) => [index('glosses_sense_id_idx').on(t.senseId)]
 )
