@@ -7,7 +7,7 @@ interface RespondArgs {
   systemInstructions?: string
 }
 
-const DEFAULT_MODEL = 'gemini-3.5-flash'
+const DEFAULT_MODEL = 'gemini-3.6-flash'
 
 class Ai {
   private models: Models
