@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ─── Stage 1: Base with system dependencies ───────────────────────────────
-FROM node:22-slim AS base
+FROM node:22.23.4-slim AS base
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     mecab \
     libmecab-dev \
